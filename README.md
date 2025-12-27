@@ -12,6 +12,8 @@ There is perfect separation of duties allocated to each buttons. Upload button s
 
 Highlights:
 
+Leveraged Llama 3.2 (1B) for localized, high-speed text summarization, optimizing for low-latency performance in a resource-constrained environment.
+
 Multi-Format Data Extraction: Engineered a robust backend pipeline to ingest and normalize data from heterogeneous sources (PDF, DOCX, TXT).
 
 Server-Side Processing: Optimized client-side performance by offloading heavy document parsing tasks to a Python-based microservice.
