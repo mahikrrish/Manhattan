@@ -10,4 +10,8 @@ Once the text is summarized, the user can either "Copy" the result to user's cli
 
 There is perfect separation of duties allocated to each buttons. Upload button strictly handle "Data Entry" (pasting text into the box) and the Summarize button strictly handle "Data Processing" (sending text to Llama 3.2), thereby preventing accidental execution and giving the user a chance to review the text before running the AI. It avoids wasting API/Local LLM calls on incorrectly uploaded files.
 
+Highlights:
+Multi-Format Data Extraction: Engineered a robust backend pipeline to ingest and normalize data from heterogeneous sources (PDF, DOCX, TXT).
+Server-Side Processing: Optimized client-side performance by offloading heavy document parsing tasks to a Python-based microservice.
+
 
