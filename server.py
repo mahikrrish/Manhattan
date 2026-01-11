@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, stream_with_context, Response, jsonify
+from flask import Flask, render_template, request, stream_with_context, Response, jsonify, make_response
 from OfflineAI.offlineai import AI_response
+import database
 
 app = Flask('OfflineAI Your Text')
 
@@ -31,11 +32,26 @@ def analyse():
     In JavaScript: The fetch() function in index.html is specifically designed to catch JSON data and "inject" it into outputBox without a refresh.
     '''
     
-    text_to_analyse = request.form.get('text_data')
-    response = AI_response(text_to_analyse)
-    with open('D:/Excel Datasets/Project Summarize/Log Sheet.xlsx', 'a+') as file:
-        file.write(time.strftime('%m-%d-%Y'))
-    return jsonify({'result': response[47:]}) #Sliced the response to skip the header part '<|start_header_id|>assistant<|end_header_id|>'
+    user_input = request.form.get('text_data')
+    response, model_name = AI_response(user_input=user_input)
+    response_obj = make_response(jsonify({'result': response}))
+    database.log(action=request.method, input_type= request.path, user_input=user_input, response=response, model_name=model_name, status_code=response_obj.status_code).queries()
+    return response_obj
+
+
+# @app.after_request
+# def log_response_info(response):
+#     # Extract the status code (e.g., 200, 404, 500)
+#     status_code = response.status_code
+#
+#     # Extract the method (GET, POST, etc.)
+#     method = request.method
+#
+#     # Extract the path (/process, /stt-listen, etc.)
+#     path = request.path
+#     database.log(action=method, input_type= path, user_input=g.user_input, response=g.response, model_name=g.model_name, status_code=status_code).queries()
+#
+#     return response  # You MUST return the response object
 
 # @app.route('/stt-listen')
 # def stt_listen():
