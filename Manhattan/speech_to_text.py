@@ -1,11 +1,9 @@
-import json, time
+import time
 import queue
 import threading
 from scipy.io.wavfile import write
 import numpy as np
 import sounddevice as sd
-from vosk import *
-
 # model = Model(r'D:\Excel Datasets\Manhattan\vosk-model-en-us-0.42-gigaspeech')
 # def recognition():
 #     """
@@ -183,39 +181,38 @@ class stt(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.sample_rate = 44100
+        self.filename = r'D:\Excel Datasets\Manhattan\recording.wav'
+        self.channels = 1
+    def run(self):
+        self.record()
     def record(self):
         q = queue.Queue()
 
         def callback(indata, frames, time, status):
-            q.put(bytes(indata))
+            q.put(indata.copy())
 
         SILENCE_THRESHOLD = 100 # Volume below this is treated as silence
         SILENCE_SECONDS = 10 # Stop recording after 10 sec inactivity
-        with sd.RawInputStream(
-                samplerate=self.sample_rate,
-                blocksize=8000,
-                dtype="int16",
-                channels=1,
-                callback=callback
-        ):
-            print('Waiting for audio...')
-            last_speech_time = time.time()
-            audio_recording = sd.InputStream(samplerate=self.sample_rate, channels=2, dtype='int16', callback=callback)
+        print('Waiting for audio...')
+        last_speech_time = time.time()
+        audio_recording = sd.InputStream(samplerate=self.sample_rate, channels=self.channels, dtype='int16', callback=callback)
+        recorded_chunks = []
+        with audio_recording:
             while True:
                 try:
                     data = q.get(timeout=1)
+                    recorded_chunks.append(data)
                 except queue.Empty:
                     continue
-                audio = np.frombuffer(data, dtype=np.int16)
-                volume = np.abs(audio).mean()
+                volume = np.abs(data).mean()
                 if volume > SILENCE_THRESHOLD:
                     last_speech_time = time.time()
                 if time.time() - last_speech_time > SILENCE_SECONDS:
                     print("Silence detected")
                     break
-                sd.wait()
-            print('Recording done')
-            write(r'D:\Excel Datasets\Manhattan\test.wav', self.sample_rate, audio_recording)
-            print("done")
+        print('Recording done')
+        recording = np.concatenate(recorded_chunks, axis=0)
+        write(self.filename, self.sample_rate, recording)
+        print("done")
 st = stt()
 st.record()
