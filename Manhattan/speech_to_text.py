@@ -1,18 +1,15 @@
-import time
-import queue
-import threading
+import time, queue, threading
 from scipy.io.wavfile import write
-import numpy as np
-import sounddevice as sd
-import whisper
+import numpy as np, sounddevice as sd, whisper
 
 
-class stt(threading.Thread):
-    def __init__(self):
+class speech_recognition(threading.Thread):
+    def __init__(self, attempt = 1):
         threading.Thread.__init__(self)
         self.sample_rate = 44100
         self.filename = r'D:\Excel Datasets\Manhattan\recording.wav'
         self.channels = 1
+        self.attempt = attempt
     def run(self):
         self.record()
     def record(self):
@@ -21,11 +18,13 @@ class stt(threading.Thread):
         def callback(indata, frames, time, status):
             q.put(indata.copy())
 
-        SILENCE_THRESHOLD = 100 # Volume below this is treated as silence
-        SILENCE_SECONDS = 10 # Stop recording after 10 sec inactivity
+        SILENCE_THRESHOLD = 100  # Volume below this is treated as silence
+        SILENCE_SECONDS = 10  # Stop recording after 10 sec inactivity
         print('Waiting for audio...')
+        # add time, attempt count for performance to MySQL
         last_speech_time = time.time()
-        audio_recording = sd.InputStream(samplerate=self.sample_rate, channels=self.channels, dtype='int16', callback=callback)
+        audio_recording = sd.InputStream(samplerate=self.sample_rate, channels=self.channels, dtype='int16',
+                                         callback=callback)
         recorded_chunks = []
         with audio_recording:
             while True:
@@ -41,8 +40,10 @@ class stt(threading.Thread):
                     print("Silence detected")
                     break
         print('Recording done')
+        #add time again to record 'recording' end time to MySQL
         recording = np.concatenate(recorded_chunks, axis=0)
         write(self.filename, self.sample_rate, recording)
+        #add time to record  write end time to MySQL
         print("done")
-st = stt()
-st.run()
+st = speech_recognition()
+st.start()
