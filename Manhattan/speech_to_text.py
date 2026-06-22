@@ -3,9 +3,14 @@ speech_to_text.py
 
 Speech recognition component for the Manhattan AI Assistant.
 
-This module captures microphone audio, performs silence-based
-recording termination, preprocesses the recorded waveform,
+This module captures audio from the system microphone,
+automatically terminates recording after a configurable period of silence,
+preprocesses the recorded waveform,
 and generates text transcriptions using OpenAI Whisper.
+
+The module also records execution metrics and
+persists performance information to the project's monitoring database
+for analysis and debugging purposes.
 
 Current Architecture:
 
@@ -22,6 +27,11 @@ Current Architecture:
     Whisper Base
         ↓
     Transcribed Text
+        ↓
+    Performance Logging
+        ↓
+    MySQL
+
 
 Author:
     Krishna Mahidhar
@@ -30,12 +40,14 @@ Project:
     Manhattan - Offline AI Assistant
 """
 
+from datetime import datetime
 import time
 import queue
 import threading
 import numpy as np
 import sounddevice as sd
 import whisper
+import database
 
 
 class SpeechRecognition(threading.Thread):
@@ -82,6 +94,8 @@ class SpeechRecognition(threading.Thread):
         self.channels = 1
         self.attempt = 1
         self.model = whisper.load_model('base')
+        self.performance_log = {}
+        self.performance_log['component'] = 'SpeechToText'
     def run(self):
         """
             Entry point for the speech recognition thread.
@@ -95,30 +109,44 @@ class SpeechRecognition(threading.Thread):
         self.record()
     def record(self):
         """
-            Record microphone audio until prolonged silence is detected.
+        Record microphone audio until prolonged silence is detected.
 
-            Audio is captured in small chunks using a SoundDevice
-            InputStream callback. Recording automatically stops when
-            no speech activity is detected for the configured silence
-            duration.
+        Audio is captured in small chunks using a SoundDevice
+        InputStream callback. Recording automatically stops when
+        no speech activity is detected for the configured silence
+        duration.
 
-            Workflow:
-                1. Initialize microphone stream.
-                2. Continuously collect audio chunks.
-                3. Monitor audio volume levels.
-                4. Detect silence timeout.
-                5. Combine all chunks into a single waveform.
-                6. Convert waveform into Whisper-compatible format.
-                7. Forward audio for transcription.
+        Workflow:
+        1. Initialize microphone stream.
+        2. Collect audio chunks from the microphone.
+        3. Monitor audio volume levels.
+        4. Detect prolonged silence.
+        5. Combine all chunks into a single waveform.
+        6. Convert waveform into Whisper-compatible format.
+        7. Forward audio for transcription.
+        8. Record execution metrics for performance monitoring.
 
-            Raises:
-                sounddevice.PortAudioError:
-                    Raised when microphone initialization fails or
-                    audio devices are unavailable.
+        Raises:
+        sounddevice.PortAudioError:
+            Raised when microphone initialization fails,
+            microphone devices are unavailable, or audio
+            stream configuration is invalid.
 
-            Returns:
-                None
-            """
+        Returns:
+            None
+
+        Notes:
+            Audio is recorded using a sample rate of 16 kHz,
+            which matches Whisper's preferred input rate and
+            eliminates additional resampling overhead.
+
+        ```
+        Recording continues until no speech activity is
+        detected for the configured silence timeout period.
+        ```
+
+        """
+
         q = queue.Queue()
 
         def callback(indata, frames, time, status):
@@ -149,7 +177,7 @@ class SpeechRecognition(threading.Thread):
         silence_seconds = 10  # Stop recording after 10 sec inactivity
         if self.attempt == 1:
             print('Waiting for audio...')
-        # add time, attempt count for performance to MySQL
+        self.performance_log['start_time'] = time.time()
         last_speech_time = time.time()
         try:
             audio_recording = sd.InputStream(samplerate=self.sample_rate, channels=self.channels,
@@ -169,7 +197,6 @@ class SpeechRecognition(threading.Thread):
                         print("Silence detected")
                         break
             print('Recording done')
-            # add time again to record 'recording' end time to MySQL
             recording = np.concatenate(recorded_chunks, axis=0)
             self.transcription(recording.flatten().astype(np.float32)/32768.0)
             # write(self.filename, self.sample_rate, recording)
@@ -180,9 +207,19 @@ class SpeechRecognition(threading.Thread):
                 if self.attempt <= 2:
                     self.channels = 1
                     self.attempt += 1
+                    self.performance_log['error_message'] = str(e) + '\n'
                     self.record()
+                else:
+                    print('There was an error with recording. Please try again.')
+                    self.performance_log['status'] = 'Error'
+                    self.performance_log['end_time'] = time.time()
+                    self.performance_monitor()
             elif 'Device unavailable' in str(e):
                 print(sd.query_devices('Audio device', 'input'))
+                self.performance_log['status'] = 'Error'
+                self.performance_log['error_message'] = str(e) + '\n'
+                self.performance_log['end_time'] = time.time()
+                self.performance_monitor()
     def transcription(self, recording):
         """
             Convert recorded audio into text using Whisper.
@@ -214,5 +251,39 @@ class SpeechRecognition(threading.Thread):
 
                 recording.flatten().astype(np.float32) / 32768.0
             """
-        result = self.model.transcribe(recording)
-        return result['text']
+        try:
+            result = self.model.transcribe(recording)
+            self.performance_log['error_message'] = None
+            self.performance_log['status'] = 'Success'
+        except Exception as e:
+            self.performance_log['status'] = 'Error'
+            self.performance_log['error_message'] = str(e)
+        finally:
+            self.performance_log['end_time'] = time.time()
+            self.performance_monitor()
+        if self.performance_log['status'] == 'Success':
+            return result['text']
+    def performance_monitor(self):
+        """
+            Record execution metrics for the SpeechToText pipeline.
+
+            Calculates total execution duration, generates a
+            timestamp for the current operation, and persists
+            performance information to the MySQL database.
+
+            Metrics Captured:
+                - Component Name
+                - Start Time
+                - End Time
+                - Duration
+                - Status
+                - Error Message
+
+            Returns:
+                None
+        """
+        now = datetime.now()
+        self.performance_log['created_at'] = now.strftime("%Y-%m-%d %H:%M:%S")
+        self.performance_log['duration'] = (self.performance_log['end_time'] -
+                                            self.performance_log['start_time'])
+        database.log(data = self.performance_log).performance_monitor()
