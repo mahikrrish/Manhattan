@@ -1,21 +1,319 @@
-# Text-Summarizer
-This AI project runs on local machine ensuring data privacy and minimal usage of hardware resources. 'llama3.2:1b' is being used as local LLM.
-Core Technologies like Ollama, Flask are used to build this AI project.
+# Manhattan - Offline AI Assistant
 
-User inputs the text to be summarized in the input text box, and upon selecting "Summarize", the local LLM performs the work and returns the summarized text to the output text box.
-User can also upload the files (supported types - .docx, .doc, .txt, .pdf) and verify if the complete file has been uploaded.
-If the user is unsatisfied of the input text, the user can clear the text box by selecting "Clear".
+## Overview
 
-Once the text is summarized, the user can either "Copy" the result to user's clipboard or "Download" the text.
+Manhattan is a personal offline AI assistant being developed in Python to explore the practical implementation of modern Artificial Intelligence, Natural Language Processing (NLP), Speech Recognition, Conversational Memory, and Large Language Models (LLMs).
 
-There is perfect separation of duties allocated to each buttons. Upload button strictly handle "Data Entry" (pasting text into the box) and the Summarize button strictly handle "Data Processing" (sending text to Llama 3.2), thereby preventing accidental execution and giving the user a chance to review the text before running the AI. It avoids wasting API/Local LLM calls on incorrectly uploaded files.
+The primary objective of this project is educational and professional development. Manhattan serves as a hands-on platform for understanding how various AI components interact to form an intelligent conversational assistant capable of processing voice input, maintaining conversation history, and generating context-aware responses.
 
-Highlights:
+This project is not intended to compete with commercial AI assistants. Instead, it focuses on understanding the engineering challenges involved in building such systems from scratch.
 
-Leveraged Llama 3.2 (1B) for localized, high-speed text summarization, optimizing for low-latency performance in a resource-constrained environment.
+---
 
-Multi-Format Data Extraction: Engineered a robust backend pipeline to ingest and normalize data from heterogeneous sources (PDF, DOCX, TXT).
+## Project Goals
 
-Server-Side Processing: Optimized client-side performance by offloading heavy document parsing tasks to a Python-based microservice.
+* Build an offline voice-enabled AI assistant.
+* Understand Speech-to-Text (STT) systems.
+* Explore Natural Language Processing techniques.
+* Integrate Large Language Models into real-world applications.
+* Implement conversational memory using databases.
+* Learn software architecture, debugging, testing, and documentation practices.
+* Develop a portfolio project demonstrating AI engineering skills.
+
+---
+
+## System Architecture
+
+### Current Workflow
+
+User Input (Voice/Text)
+
+↓
+
+OpenAI Whisper
+
+(Speech-to-Text)
+
+↓
+
+spaCy NLP Processing
+
+(Named Entity Recognition)
+
+↓
+
+Llama 3.2:3B
+
+(Reasoning and Response Generation)
+
+↕
+
+LangChain
+
+(Context Management)
+
+↕
+
+MySQL
+
+(Conversation Memory)
+
+↓
+
+Assistant Response
+
+---
+
+## Technologies Used
+
+### Programming Language
+
+* Python 3.14
+
+### Speech Recognition
+
+* OpenAI Whisper (Base Model)
+
+Purpose:
+
+* Offline speech-to-text conversion.
+* Converts microphone input into text.
+* Supports direct NumPy waveform transcription.
+
+### Natural Language Processing
+
+* spaCy
+
+Purpose:
+
+* Named Entity Recognition (NER)
+* Structured extraction of:
+
+  * People
+  * Locations
+  * Organizations
+  * Dates
+  * Monetary Values
+
+Future Scope:
+
+* Intent Classification
+* Command Routing
+* Structured Information Extraction
+
+### Large Language Model
+
+* Llama 3.2:3B
+
+Purpose:
+
+* Conversational reasoning
+* Context-aware response generation
+* Query understanding
+
+### Memory Management
+
+* LangChain
+
+Purpose:
+
+* Conversation orchestration
+* Retrieval of historical conversations
+* Context construction for LLM prompts
+
+### Database
+
+* MySQL
+
+Purpose:
+
+* Persistent storage of:
+
+  * User Queries
+  * Assistant Responses
+  * Timestamps
+  * Performance Metrics
+  * Conversation History
+
+### Audio Processing
+
+* SoundDevice
+* NumPy
+
+Purpose:
+
+* Real-time microphone recording
+* Audio buffering
+* Waveform manipulation
+* Silence detection
+
+---
+
+## Current Features
+
+### Speech Recognition
+
+Implemented using OpenAI Whisper Base.
+
+Features:
+
+* Real-time microphone recording
+* Silence-based recording termination
+* Direct NumPy-to-Whisper transcription
+* No intermediate audio file required
+* Basic microphone error handling
+
+### Conversation Memory
+
+Planned integration using:
+
+* LangChain
+* MySQL
+
+Capabilities:
+
+* Retrieve previous conversations
+* Store assistant responses
+* Maintain conversational context
+
+### NLP Pipeline
+
+Current:
+
+* Named Entity Recognition (NER)
+
+Future:
+
+* Intent Classification
+* Entity-driven automation
+* Command execution
+
+---
+
+## Engineering Decisions
+
+### Direct ndarray Transcription
+
+Initial Design:
+
+Microphone → WAV File → Whisper
+
+Current Design:
+
+Microphone → NumPy ndarray → Whisper
+
+Reason:
+
+* Reduced disk I/O
+* Faster processing
+* Simplified pipeline
+
+### Whisper Sample Rate
+
+Configured at:
+
+16,000 Hz
+
+Reason:
+
+* Native Whisper sample rate
+* Eliminates additional resampling
+
+### Model Loading Strategy
+
+Current:
+
+Load Whisper model once during initialization.
+
+Reason:
+
+* Reduced transcription latency
+* Improved runtime performance
+
+---
+
+## Error Handling Implemented
+
+Current error scenarios handled include:
+
+* Invalid microphone channel configuration
+* Audio device unavailable
+* Recording initialization failures
+
+Additional error handling and recovery strategies are documented separately in the project documentation.
+
+---
+
+## Performance Monitoring (Planned)
+
+The project architecture includes support for storing:
+
+* Recording Start Time
+* Recording End Time
+* Transcription Start Time
+* Transcription End Time
+* Attempt Count
+* Processing Duration
+* Total Response Time
+
+These metrics will be stored in MySQL for performance analysis.
+
+---
+
+## Future Enhancements
+
+### Voice Output
+
+* Text-to-Speech (TTS)
+
+### Automation
+
+* Windows System Commands
+* Application Launching
+* File Operations
+
+### AI Improvements
+
+* Better Context Retrieval
+* Intent Classification
+* Multi-turn Conversation Optimization
+
+### Monitoring
+
+* Detailed Performance Dashboard
+* Error Analytics
+* Usage Metrics
+
+---
+
+## Lessons Learned
+
+Throughout development, one of the most significant observations has been that building AI systems involves considerably more engineering work than model integration.
+
+Areas such as:
+
+* Audio capture
+* Data preprocessing
+* Error handling
+* Memory management
+* Performance optimization
+
+often require more effort than invoking the AI model itself.
+
+This project serves as a practical exploration of those engineering challenges.
+
+---
+
+## Author
+
+Sai Krishna Mahidhar Devulpalli
+
+Amazon India
+
+Risk Control Analyst
+
+Project: Manhattan - Offline AI Assistant
+
+Year: 2026
 
 
