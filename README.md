@@ -306,7 +306,7 @@ This project serves as a practical exploration of those engineering challenges.
 
 ## Author
 
-Sai Krishna Mahidhar Devulpalli
+Sai Krishna Mahidhar Devulapalli
 
 Amazon India
 
