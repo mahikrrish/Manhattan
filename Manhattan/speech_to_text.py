@@ -48,6 +48,8 @@ import numpy as np
 import sounddevice as sd
 import whisper
 import database
+import warnings
+warnings.filterwarnings('ignore') #To suppress all warnings across the entire script
 
 
 class SpeechRecognition(threading.Thread):
@@ -104,9 +106,15 @@ class SpeechRecognition(threading.Thread):
             speech-to-text pipeline.
 
             Returns:
-                None
+                str | None:
+                    Transcribed Text from Record Method
+                    Returns None if Transcription Fails
             """
-        self.record()
+        text = self.record()
+        if text:
+            return text
+        else:
+            return None
     def record(self):
         """
         Record microphone audio until prolonged silence is detected.
@@ -133,7 +141,10 @@ class SpeechRecognition(threading.Thread):
             stream configuration is invalid.
 
         Returns:
-            None
+            str:
+                Transcription Method which transcribes
+                the recorded text
+
 
         Notes:
             Audio is recorded using a sample rate of 16 kHz,
@@ -198,10 +209,7 @@ class SpeechRecognition(threading.Thread):
                         break
             print('Recording done')
             recording = np.concatenate(recorded_chunks, axis=0)
-            self.transcription(recording.flatten().astype(np.float32)/32768.0)
-            # write(self.filename, self.sample_rate, recording)
-            # # add time to record  write end time to MySQL
-            # print("done")
+            return self.transcription(recording.flatten().astype(np.float32)/32768.0)
         except sd.PortAudioError as e:
             if 'Invalid number of channels' in str(e):
                 if self.attempt <= 2:
@@ -220,6 +228,11 @@ class SpeechRecognition(threading.Thread):
                 self.performance_log['error_message'] = str(e) + '\n'
                 self.performance_log['end_time'] = time.time()
                 self.performance_monitor()
+        except Exception as e:
+            self.performance_log['status'] = 'Error'
+            self.performance_log['error_message'] = str(e) + '\n'
+            self.performance_log['end_time'] = time.time()
+            self.performance_monitor()
     def transcription(self, recording):
         """
             Convert recorded audio into text using Whisper.
@@ -250,6 +263,10 @@ class SpeechRecognition(threading.Thread):
                 Example:
 
                 recording.flatten().astype(np.float32) / 32768.0
+            Returns:
+                str | None:
+                    Whisper-generated transcription when processing succeeds.
+                    Returns None if transcription fails.
             """
         try:
             result = self.model.transcribe(recording)
@@ -263,6 +280,8 @@ class SpeechRecognition(threading.Thread):
             self.performance_monitor()
         if self.performance_log['status'] == 'Success':
             return result['text']
+        else:
+            return None
     def performance_monitor(self):
         """
             Record execution metrics for the SpeechToText pipeline.
@@ -270,6 +289,12 @@ class SpeechRecognition(threading.Thread):
             Calculates total execution duration, generates a
             timestamp for the current operation, and persists
             performance information to the MySQL database.
+
+            Workflow:
+                1. Generate current timestamp.
+                2. Calculate execution duration.
+                3. Populate performance metrics.
+                4. Persist metrics to MySQL.
 
             Metrics Captured:
                 - Component Name
