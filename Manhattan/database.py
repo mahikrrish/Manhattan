@@ -8,10 +8,9 @@ import threading
 
 
 class log(threading.Thread):
-    def __init__(self, data):
+    def __init__(self):
         threading.Thread.__init__(self)
         self.db_connection = False
-        self.data = data
     def db_initiate(self):
         try:
             self.db = mysql.connector.connect(
@@ -22,8 +21,9 @@ class log(threading.Thread):
             )
             self.mycursor = self.db.cursor()
             self.db_connection = True
-        except:
-            print('Database Connection Error')
+        except Exception as e:
+            self.db_connection = False
+            raise Exception(f'Database Connection Error : {e}')
 
     def conversation_history(self):
         if not self.db_connection:
@@ -44,9 +44,12 @@ class log(threading.Thread):
             df = pd.read_sql('SELECT * FROM log_data ORDER BY Date DESC, Time DESC LIMIT 5', self.db)
             # print('Now returning')
             return df
-    def performance_monitor(self):
+    def performance_monitor(self, data):
+        self.data = data
         if not self.db_connection:
             self.db_initiate()
+        if not self.db_connection:
+            raise Exception('Database connection could not be established for performance monitoring.')
         sql_query = (
             f'INSERT INTO performance_monitor (created_at, component, start_time, end_time, duration, status, error_message)'
             f'VALUES (%s, %s, %s, %s, %s, %s, %s)'
