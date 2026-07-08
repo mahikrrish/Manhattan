@@ -98,64 +98,80 @@ class SpeechRecognition(threading.Thread):
         self.model = whisper.load_model('base')
         self.performance_log = {}
         self.performance_log['component'] = 'SpeechToText'
-    def run(self):
+    def run(self, conversation_id = None):
         """
-            Entry point for the speech recognition thread.
+        Entry point for the speech recognition thread.
 
-            Starts the audio recording process and triggers the
-            speech-to-text pipeline.
+        This method starts the audio recording process and triggers the
+        speech-to-text pipeline. It forwards the supplied conversation_id to the
+        underlying recording/transcription flow so that SpeechToText performance
+        metrics can be linked to the correct conversation_history row in the
+        database.
 
-            Returns:
-                str | None:
-                    Transcribed Text from Record Method
-                    Returns None if Transcription Fails
-            """
-        text = self.record()
+        Args:
+            conversation_id (int | None, optional):
+                Primary key of the conversation_history row representing the current
+                conversation run. When provided, this ID is stored in the SpeechToText
+                performance log and written into the performance_monitor table.
+                Defaults to None.
+
+        Returns:
+            str | None:
+                Whisper-generated transcription text when speech recognition
+                succeeds.
+
+                Returns None if recording or transcription fails.
+        """
+        text = self.record(conversation_id)
         if text:
             return text
         else:
             return None
-    def record(self):
+    def record(self, conversation_id):
         """
+
         Record microphone audio until prolonged silence is detected.
 
-        Audio is captured in small chunks using a SoundDevice
-        InputStream callback. Recording automatically stops when
-        no speech activity is detected for the configured silence
-        duration.
+        Audio is captured in small chunks using a SoundDevice InputStream callback.
+        Recording automatically stops when no speech activity is detected for the
+        configured silence duration.
 
         Workflow:
-        1. Initialize microphone stream.
-        2. Collect audio chunks from the microphone.
-        3. Monitor audio volume levels.
-        4. Detect prolonged silence.
-        5. Combine all chunks into a single waveform.
-        6. Convert waveform into Whisper-compatible format.
-        7. Forward audio for transcription.
-        8. Record execution metrics for performance monitoring.
+            1. Initialize microphone stream.
+            2. Collect audio chunks from the microphone.
+            3. Monitor audio volume levels.
+            4. Detect prolonged silence.
+            5. Combine all chunks into a single waveform.
+            6. Convert waveform into Whisper-compatible format.
+            7. Forward audio for transcription.
+            8. Record execution metrics for performance monitoring.
+
+        Args:
+            conversation_id (int | None):
+                Primary key of the conversation_history row representing the current
+                end-to-end conversation run. This value is stored in the STT
+                performance log so that the SpeechToText performance_monitor entry
+                can be linked back to the matching conversation_history row.
 
         Raises:
-        sounddevice.PortAudioError:
-            Raised when microphone initialization fails,
-            microphone devices are unavailable, or audio
-            stream configuration is invalid.
+            sounddevice.PortAudioError:
+                Raised when microphone initialization fails, microphone devices are
+                unavailable, or audio stream configuration is invalid.
 
         Returns:
-            str:
-                Transcription Method which transcribes
-                the recorded text
+            str | None:
+                Whisper-generated transcription text when recording and
+                transcription succeed.
 
+                Returns None if recording or transcription fails.
 
         Notes:
-            Audio is recorded using a sample rate of 16 kHz,
-            which matches Whisper's preferred input rate and
-            eliminates additional resampling overhead.
+            Audio is recorded using a sample rate of 16 kHz, which matches
+            Whisper's preferred input rate and eliminates additional resampling
+            overhead.
 
-        ```
-        Recording continues until no speech activity is
-        detected for the configured silence timeout period.
-        ```
-
+            Recording continues until no speech activity is detected for the
+            configured silence timeout period.
         """
 
         q = queue.Queue()
@@ -189,6 +205,7 @@ class SpeechRecognition(threading.Thread):
         if self.attempt == 1:
             print('Waiting for audio...')
         self.performance_log['start_time'] = time.time()
+        self.performance_log['conversation_id'] = conversation_id
         last_speech_time = time.time()
         try:
             audio_recording = sd.InputStream(samplerate=self.sample_rate, channels=self.channels,
@@ -216,7 +233,7 @@ class SpeechRecognition(threading.Thread):
                     self.channels = 1
                     self.attempt += 1
                     self.performance_log['error_message'] = str(e) + '\n'
-                    self.record()
+                    self.record(conversation_id)
                 else:
                     print('There was an error with recording. Please try again.')
                     self.performance_log['status'] = 'Error'
@@ -284,31 +301,36 @@ class SpeechRecognition(threading.Thread):
             return None
     def performance_monitor(self):
         """
-            Record execution metrics for the SpeechToText pipeline.
+        Record execution metrics for the SpeechToText pipeline.
 
-            Calculates total execution duration, generates a
-            timestamp for the current operation, and persists
-            performance information to the MySQL database.
+        This method calculates total execution duration, generates a timestamp for
+        the current operation, and persists SpeechToText performance information to
+        the MySQL performance_monitor table.
 
-            Workflow:
-                1. Generate current timestamp.
-                2. Calculate execution duration.
-                3. Populate performance metrics.
-                4. Persist metrics to MySQL.
+        Workflow:
+            1. Generate current timestamp.
+            2. Calculate execution duration.
+            3. Populate performance metrics.
+            4. Persist metrics to MySQL.
 
-            Metrics Captured:
-                - Component Name
-                - Start Time
-                - End Time
-                - Duration
-                - Status
-                - Error Message
+        Metrics captured:
+            - conversation_id
+            - component name
+            - start_time
+            - end_time
+            - duration
+            - status
+            - error_message
 
-            Returns:
-                None
+        The conversation_id field links the SpeechToText component log to the
+        corresponding row in conversation_history so that the full conversation run
+        can later be analyzed together with component-level timings.
+
+        Returns:
+            None
         """
         now = datetime.now()
         self.performance_log['created_at'] = now.strftime("%Y-%m-%d %H:%M:%S")
         self.performance_log['duration'] = (self.performance_log['end_time'] -
                                             self.performance_log['start_time'])
-        database.log(data = self.performance_log).performance_monitor()
+        database.log().performance_monitor(data=self.performance_log)

@@ -58,15 +58,18 @@ class NaturalLanguageProcessing(threading.Thread):
     grouped entity summaries, and token-level linguistic analysis.
 
     The class also records execution timings and logs success or failure details
-    into the performance monitoring system for each processed input text.
+    into the performance monitoring system for each processed input text. Each
+    performance log can optionally be linked to a specific conversation_history
+    row through a conversation_id so that component-level monitoring records can
+    be traced back to the corresponding end-to-end conversation run.
 
     Execution patterns:
-        1. preprocessing(raw_text):
+        1. preprocessing(raw_text, conversation_id):
            Used when the caller wants the direct NLP output only. If NLP
            processing fails, this method returns None after recording the
            failure in the performance monitoring table.
 
-        2. run(raw_text):
+        2. run(raw_text, conversation_id=None):
            Used as the assistant-facing execution method. If NLP processing
            succeeds, it returns the complete structured NLP package. If NLP
            processing fails, it returns a fallback dictionary containing the
@@ -79,8 +82,8 @@ class NaturalLanguageProcessing(threading.Thread):
 
         performance_log (dict):
             Dictionary used to capture component-level execution metadata such as
-            component name, start time, end time, duration, status, and
-            error_message for database logging.
+            conversation_id, component name, start time, end time, duration,
+            status, and error_message for database logging.
     """
     def __init__(self):
         """
@@ -105,14 +108,14 @@ class NaturalLanguageProcessing(threading.Thread):
         self.performance_log = {}
         self.performance_log['component'] = 'NaturalLanguageProcessing'
 
-    def run(self, raw_text):
+    def run(self, raw_text, conversation_id=None):
         """
         Execute the NLP pipeline for a single transcription text and return either
         structured NLP output or a fallback dictionary.
 
         This method acts as the assistant-facing execution entry point for the NLP
-        component. It calls preprocessing(raw_text) to generate the structured NLP
-        package for the supplied transcription text.
+        component. It calls preprocessing(raw_text, conversation_id) to generate the
+        structured NLP package for the supplied transcription text.
 
         Behavior:
             - If preprocessing succeeds, the structured NLP output dictionary is
@@ -127,17 +130,23 @@ class NaturalLanguageProcessing(threading.Thread):
             raw_text (str):
                 Raw transcription text to be processed by the NLP pipeline.
 
+            conversation_id (int | None, optional):
+                Primary key of the corresponding conversation_history row for the
+                current conversation run. When provided, the NLP component's
+                performance monitoring record is linked to that conversation row.
+                Defaults to None.
+
         Returns:
             dict:
                 On successful NLP processing, returns a dictionary containing:
-                    - original_text
-                    - sentences
-                    - entities
-                    - entity_summary
-                    - token_analysis
+                - original_text
+                - sentences
+                - entities
+                - entity_summary
+                - token_analysis
 
                 On NLP failure, returns a fallback dictionary of the form:
-                    {
+                {
                     "original_text": <raw transcription text>,
                     "sentences": None,
                     "entities": None,
@@ -145,7 +154,7 @@ class NaturalLanguageProcessing(threading.Thread):
                     "token_analysis": None
                 }
         """
-        processed_text = self.preprocessing(raw_text)
+        processed_text = self.preprocessing(raw_text, conversation_id)
         if processed_text:
             return processed_text
         else:
@@ -157,7 +166,7 @@ class NaturalLanguageProcessing(threading.Thread):
                 'token_analysis': None
             }
 
-    def preprocessing(self, raw_text):
+    def preprocessing(self, raw_text, conversation_id):
         """
         Build the complete NLP output package for a single transcription text.
 
@@ -173,11 +182,20 @@ class NaturalLanguageProcessing(threading.Thread):
         part-of-speech (POS).
 
         The method also records execution timings and logs success or failure
-        information into the performance monitoring system.
+        information into the performance monitoring system. If a conversation_id is
+        supplied, the resulting performance-monitor entry is linked to the matching
+        conversation_history row for the current end-to-end conversation run.
 
         Args:
             raw_text (str):
                 Raw transcription text to be processed.
+
+            conversation_id (int | None):
+                Primary key of the conversation_history row representing the current
+                conversation run. This value is stored in the NLP performance log so
+                that the component-level performance record can be linked back to the
+                main conversation entry. If no conversation row has been created yet,
+                None may be passed.
 
         Returns:
             dict | None:
@@ -193,14 +211,14 @@ class NaturalLanguageProcessing(threading.Thread):
                 - entities (list[dict] | None):
                     List of detected named entities, where each entity is
                     represented as a dictionary containing:
-                    - text: entity text
-                    - label: spaCy entity label
+                        - text: entity text
+                        - label: spaCy entity label
                     Returns None if no entities are detected.
 
                 - entity_summary (dict | None):
                     Dictionary grouping entity texts by their entity label.
                     Example:
-                        {
+                    {
                         "PERSON": ["Narendra Modi"],
                         "GPE": ["Japan"]
                     }
@@ -209,20 +227,21 @@ class NaturalLanguageProcessing(threading.Thread):
                 - token_analysis (list[dict] | None):
                     List of token-level linguistic details, where each token is
                     represented as a dictionary containing:
-                    - text: original token text
-                    - lemma: lemmatized/base form of the token
-                    - pos: part-of-speech tag
+                        - text: original token text
+                        - lemma: lemmatized/base form of the token
+                        - pos: part-of-speech tag
                     Returns None if token analysis produces no tokens.
 
                 On failure, returns None after recording the failure details in the
                 performance monitoring table.
 
-            Notes:
-                This method is suitable for direct NLP evaluation and bulk testing
-                scenarios where the caller wants to distinguish between successful NLP
-                processing and NLP failure using a None return value.
+        Notes:
+            This method is suitable for direct NLP evaluation and bulk testing
+            scenarios where the caller wants to distinguish between successful NLP
+            processing and NLP failure using a None return value.
         """
         self.performance_log['start_time'] = time.time()
+        self.performance_log['conversation_id'] = conversation_id
         self.raw_text = self.nlp(raw_text)
         try:
             preprocessed_text = {
@@ -396,28 +415,34 @@ class NaturalLanguageProcessing(threading.Thread):
             raise
     def performance_monitor(self):
         """
-            Log NLP component execution details to the performance monitoring table.
+        Log NLP component execution details to the performance monitoring table.
 
-            This method finalizes the performance log by adding:
+        This method finalizes the NLP component's performance log by adding:
             - created_at timestamp
             - execution duration
 
-            It then forwards the performance metadata to the database logging layer
-            for insertion into the performance monitoring table.
+        It then forwards the performance metadata to the database logging layer for
+        insertion into the performance_monitor table.
 
-            The performance log is expected to contain:
-                - component
-                - start_time
-                - end_time
-                - status
-                - error_message
+        The performance log is expected to contain:
+            - conversation_id
+            - component
+            - start_time
+            - end_time
+            - status
+            - error_message
 
-            Side Effects:
-                Inserts a performance monitoring record into the database via
-                database.log(...).performance_monitor().
+        The conversation_id field links the component-level NLP performance record
+        to the corresponding row in conversation_history so that the full
+        conversation run and its internal component timings can be analyzed
+        together.
 
-            Returns:
-                None
+        Side Effects:
+            Inserts a performance monitoring record into the database via
+            database.log().performance_monitor(data=self.performance_log).
+
+        Returns:
+            None
         """
         now = datetime.now()
         self.performance_log['created_at'] = now.strftime("%Y-%m-%d %H:%M:%S")
