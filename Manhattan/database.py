@@ -28,10 +28,10 @@ class log(threading.Thread):
             self.db_connection = False
             raise Exception(f'Database Connection Error : {e}')
 
-    def retrieve_conversation(self):
+    def retrieve_conversation(self, row_limit):
         try:
             if self.attempt<=2 and self.db_connection:
-                df = pd.read_sql('SELECT * FROM log_data ORDER BY Date DESC, Time DESC LIMIT 5', self.db)
+                df = pd.read_sql(f'SELECT * FROM conversation_history ORDER BY Date DESC, Time DESC LIMIT {row_limit}', self.db)
                 if df:
                     self.attempt = 1
                     return df

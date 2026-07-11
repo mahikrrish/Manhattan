@@ -1,5 +1,5 @@
 """
-speech_to_text.py
+speech_recognition.py
 
 Speech recognition component for the Manhattan AI Assistant.
 
