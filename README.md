@@ -32,13 +32,13 @@ User Input (Voice/Text)
 
 OpenAI Whisper
 
-(Speech-to-Text)
+(Speech Recognition)
 
 ↓
 
 spaCy NLP Processing
 
-(Named Entity Recognition)
+(Natural Language Processing)
 
 ↓
 
@@ -48,9 +48,9 @@ Llama 3.2:3B
 
 ↕
 
-LangChain
+Conversation Memory
 
-(Context Management)
+(Conversation Memory)
 
 ↕
 
