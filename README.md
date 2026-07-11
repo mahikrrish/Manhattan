@@ -50,13 +50,13 @@ Llama 3.2:3B
 
 Conversation Memory
 
-(Conversation Memory)
+(Context Retrieval)
 
 ↕
 
 MySQL
 
-(Conversation Memory)
+(Conversation History)
 
 ↓
 
