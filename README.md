@@ -42,11 +42,9 @@ This project is not intended to compete with commercial AI assistants. Instead, 
 
 ## Current Workflow
 
-```
 <p align="center">
   <img src="docs/Manhattan%20Workflow.jpg" alt="Manhattan Workflow" width="850">
 </p>
-```
 
 ---
 
