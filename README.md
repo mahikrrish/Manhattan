@@ -70,8 +70,6 @@ Each module has a single responsibility, allowing Manhattan to remain modular, m
 
 ---
 
----
-
 # Architecture Principles
 
 Manhattan follows a modular software architecture where each major AI capability is implemented as an independent Python component.
