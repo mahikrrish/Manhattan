@@ -43,30 +43,9 @@ This project is not intended to compete with commercial AI assistants. Instead, 
 ## Current Workflow
 
 ```
-                    User Input (Voice / Text)
-                              │
-                              ▼
-                     OpenAI Whisper
-                  (Speech Recognition)
-                              │
-                              ▼
-                  spaCy NLP Processing
-            (Natural Language Processing)
-                              │
-                              ▼
-                       Llama 3.2 : 3B
-      (Reasoning and Response Generation)
-                              │
-                              ▼
-                  Conversation Memory
-                    (Context Retrieval)
-                         ▲         │
-                         │         ▼
-                    MySQL Database
-                 (Conversation History)
-                              │
-                              ▼
-                    Assistant Response
+<p align="center">
+  <img src="docs/Manhattan%20Workflow.jpg" alt="Manhattan Workflow" width="850">
+</p>
 ```
 
 ---
