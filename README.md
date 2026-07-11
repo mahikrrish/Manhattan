@@ -2,318 +2,616 @@
 
 ## Overview
 
-Manhattan is a personal offline AI assistant being developed in Python to explore the practical implementation of modern Artificial Intelligence, Natural Language Processing (NLP), Speech Recognition, Conversational Memory, and Large Language Models (LLMs).
+Manhattan is a personal offline AI assistant being developed in Python to gain practical experience in building an end-to-end Artificial Intelligence system from scratch. Rather than relying on cloud-based AI services, the project focuses on understanding how independent AI components work together to create an intelligent conversational assistant.
 
-The primary objective of this project is educational and professional development. Manhattan serves as a hands-on platform for understanding how various AI components interact to form an intelligent conversational assistant capable of processing voice input, maintaining conversation history, and generating context-aware responses.
+The project integrates Speech Recognition, Natural Language Processing (NLP), Conversation Memory, Large Language Models (LLMs), and persistent database storage into a modular architecture. Each component has been designed as an independent Python module to encourage separation of responsibilities, easier debugging, future scalability, and maintainability.
 
-This project is not intended to compete with commercial AI assistants. Instead, it focuses on understanding the engineering challenges involved in building such systems from scratch.
+The primary objective of Manhattan is educational and professional development. It serves as a hands-on engineering project for understanding the complete lifecycle of an AI assistant—from capturing user input to generating context-aware responses using a locally hosted Large Language Model.
 
----
-
-## Project Goals
-
-* Build an offline voice-enabled AI assistant.
-* Understand Speech-to-Text (STT) systems.
-* Explore Natural Language Processing techniques.
-* Integrate Large Language Models into real-world applications.
-* Implement conversational memory using databases.
-* Learn software architecture, debugging, testing, and documentation practices.
-* Develop a portfolio project demonstrating AI engineering skills.
+This project is not intended to compete with commercial AI assistants. Instead, it focuses on exploring the engineering challenges involved in designing and implementing such systems while following clean software engineering principles.
 
 ---
 
-## System Architecture
+## Key Highlights
 
-### Current Workflow
+- Offline AI Assistant developed entirely in Python.
+- Modular architecture with independently testable components.
+- OpenAI Whisper for Speech Recognition.
+- spaCy-powered Natural Language Processing.
+- Custom Conversation Memory implementation.
+- Llama 3.2:3B for offline inference.
+- MySQL-backed conversation history and performance monitoring.
+- Comprehensive exception handling and runtime performance logging.
 
-User Input (Voice/Text)
+---
+
+# Project Goals
+
+- Build an offline voice-enabled AI assistant.
+- Understand modern Speech-to-Text (STT) systems.
+- Explore Natural Language Processing techniques using spaCy.
+- Integrate a locally hosted Large Language Model into a real-world application.
+- Design and implement conversation memory using MySQL.
+- Learn modular software architecture and component interaction.
+- Gain practical experience in debugging, testing, documentation, and performance monitoring.
+- Develop a portfolio project demonstrating AI Engineering skills.
+
+---
+
+# System Architecture
+
+## Current Workflow
+
+```
+                    User Input (Voice / Text)
+                              │
+                              ▼
+                     OpenAI Whisper
+                  (Speech Recognition)
+                              │
+                              ▼
+                  spaCy NLP Processing
+            (Natural Language Processing)
+                              │
+                              ▼
+                       Llama 3.2 : 3B
+      (Reasoning and Response Generation)
+                              │
+                              ▼
+                  Conversation Memory
+                    (Context Retrieval)
+                         ▲         │
+                         │         ▼
+                    MySQL Database
+                 (Conversation History)
+                              │
+                              ▼
+                    Assistant Response
+```
+
+---
+
+# Project Structure
+
+```
+Manhattan/
+│
+├── speech_recognition.py         # OpenAI Whisper speech-to-text pipeline
+├── natural_language_processing.py# spaCy-based NLP preprocessing
+├── conversation_memory.py        # Conversation retrieval and context construction
+├── llama.py                      # Llama 3.2 integration and response generation
+├── database.py                   # MySQL connection and database operations
+├── performance_monitor.py        # Component performance logging
+├── gui.py                        # Desktop graphical user interface
+│
+├── requirements.txt              # Python dependencies
+├── README.md                     # Project documentation
+└── LICENSE                       # Project license
+```
+
+Each module has a single responsibility, allowing Manhattan to remain modular, maintainable, and scalable. Components communicate through well-defined interfaces, making it easier to debug, test, and extend individual modules without affecting the rest of the system.
+
+---
+
+---
+
+# Architecture Principles
+
+Manhattan follows a modular software architecture where each major AI capability is implemented as an independent Python component.
+
+The design emphasizes:
+
+- Single Responsibility Principle
+- Modular component design
+- Separation of concerns
+- Reusability
+- Maintainability
+- Independent testing
+- Performance monitoring
+- Scalability
+
+This architecture allows individual components to evolve independently while minimizing the impact of future enhancements on the overall system.
+
+---
+
+# Technologies Used
+
+## Programming Language
+
+- Python 3.14
+
+Purpose
+
+- Primary programming language used for application development.
+
+---
+
+## Speech Recognition
+
+- OpenAI Whisper (Base Model)
+
+Purpose
+
+- Offline Speech-to-Text conversion.
+- Direct microphone transcription.
+- NumPy ndarray based audio processing.
+- Eliminates intermediate audio file generation.
+
+---
+
+## Natural Language Processing
+
+- spaCy
+
+Purpose
+
+- Sentence Detection
+- Named Entity Recognition (NER)
+- Token Analysis
+- Entity Summary Generation
+- Structured NLP preprocessing for downstream LLM processing.
+
+Future Scope
+
+- Intent Classification
+- Command Routing
+- Relationship Extraction
+- Semantic Analysis
+
+---
+
+## Large Language Model
+
+- Llama 3.2 : 3B (Local)
+
+Purpose
+
+- Conversational reasoning.
+- Context-aware response generation.
+- Multi-turn conversation understanding.
+- Offline inference.
+
+---
+
+## Conversation Memory
+
+- Custom Python Implementation
+- MySQL
+
+Purpose
+
+- Retrieve previous conversations.
+- Construct conversational context.
+- Build LLM message history.
+- Maintain configurable conversation windows.
+- Supply contextual memory to the LLM.
+
+---
+
+## Database
+
+- MySQL
+
+Purpose
+
+Stores persistent project data including:
+
+- User Inputs
+- NLP Processed Output
+- Assistant Responses
+- Conversation History
+- Performance Monitoring Logs
+- Execution Timestamps
+
+---
+
+## Audio Processing
+
+- SoundDevice
+- NumPy
+
+Purpose
+
+- Real-time microphone recording.
+- Audio buffering.
+- Waveform manipulation.
+- Silence detection.
+
+---
+
+# Current Features
+
+## Speech Recognition
+
+Implemented using OpenAI Whisper (Base Model).
+
+Current Features
+
+- Real-time microphone recording.
+- Direct NumPy ndarray transcription.
+- No intermediate audio file generation.
+- Silence-based recording termination.
+- Offline Speech-to-Text conversion.
+- Basic microphone error handling.
+- Performance monitoring integration.
+
+---
+
+## Natural Language Processing
+
+Implemented using spaCy.
+
+Current Features
+
+- Sentence Detection
+- Named Entity Recognition (NER)
+- Token Analysis
+- Entity Summary Generation
+- Structured NLP preprocessing
+- Exception handling
+- Performance monitoring integration
+
+Current NLP Output
+
+Each user input is transformed into a structured dictionary containing:
+
+- Original Text
+- Sentence Detection
+- Named Entities
+- Entity Summary
+- Token Analysis
+
+The structured output serves as the input for the Conversation Memory module before being supplied to the Large Language Model.
+
+---
+
+## Conversation Memory
+
+Implemented as an independent Python module.
+
+Current Features
+
+- Retrieve previous conversations from MySQL.
+- Configurable conversation retrieval window.
+- Dynamic conversation context construction.
+- LLM message history generation.
+- Automatic chronological ordering.
+- Independent exception handling.
+- Performance monitoring integration.
+
+Conversation Memory dynamically retrieves previous conversations, combines them with the current NLP processed input, constructs the complete message history, and supplies it to the Large Language Model.
+
+---
+
+## Large Language Model
+
+Implemented using Llama 3.2 : 3B.
+
+Current Features
+
+- Offline inference.
+- Multi-turn conversation support.
+- Context-aware response generation.
+- Conversation Memory integration.
+- Structured NLP input processing.
+
+The model receives conversational context generated by the Conversation Memory module together with the latest processed user input to produce an intelligent response.
+
+---
+
+## Database
+
+Implemented using MySQL.
+
+Current Tables
+
+### Conversation History
+
+Stores:
+
+- Conversation ID
+- User Input
+- NLP Processed Output
+- Assistant Response
+- Conversation Timestamp
+
+### Performance Monitor
+
+Stores:
+
+- Component Name
+- Start Time
+- End Time
+- Processing Duration
+- Status
+- Error Message
+- Conversation ID
+
+The Performance Monitor enables runtime analysis of every major component in the system.
+
+---
+
+# Engineering Decisions
+
+## Modular Architecture
+
+Instead of developing Manhattan as a single monolithic application, each major responsibility has been implemented as an independent Python module.
+
+Current modules include:
+
+- Speech Recognition
+- Natural Language Processing
+- Conversation Memory
+- Large Language Model
+- Database
+- Performance Monitoring
+
+This architecture improves:
+
+- Maintainability
+- Debugging
+- Component isolation
+- Future scalability
+- Independent testing
+
+---
+
+## Direct ndarray Transcription
+
+### Initial Design
+
+Microphone
 
 ↓
 
-OpenAI Whisper
-
-(Speech Recognition)
+WAV File
 
 ↓
 
-spaCy NLP Processing
+Whisper
 
-(Natural Language Processing)
+### Current Design
 
-↓
-
-Llama 3.2:3B
-
-(Reasoning and Response Generation)
-
-↕
-
-Conversation Memory
-
-(Context Retrieval)
-
-↕
-
-MySQL
-
-(Conversation History)
+Microphone
 
 ↓
 
-Assistant Response
+NumPy ndarray
+
+↓
+
+Whisper
+
+Benefits
+
+- Eliminates disk I/O.
+- Reduces latency.
+- Simplifies processing pipeline.
+- Faster transcription.
 
 ---
 
-## Technologies Used
+## Whisper Sample Rate
 
-### Programming Language
-
-* Python 3.14
-
-### Speech Recognition
-
-* OpenAI Whisper (Base Model)
-
-Purpose:
-
-* Offline speech-to-text conversion.
-* Converts microphone input into text.
-* Supports direct NumPy waveform transcription.
-
-### Natural Language Processing
-
-* spaCy
-
-Purpose:
-
-* Named Entity Recognition (NER)
-* Structured extraction of:
-
-  * People
-  * Locations
-  * Organizations
-  * Dates
-  * Monetary Values
-
-Future Scope:
-
-* Intent Classification
-* Command Routing
-* Structured Information Extraction
-
-### Large Language Model
-
-* Llama 3.2:3B
-
-Purpose:
-
-* Conversational reasoning
-* Context-aware response generation
-* Query understanding
-
-### Memory Management
-
-* LangChain
-
-Purpose:
-
-* Conversation orchestration
-* Retrieval of historical conversations
-* Context construction for LLM prompts
-
-### Database
-
-* MySQL
-
-Purpose:
-
-* Persistent storage of:
-
-  * User Queries
-  * Assistant Responses
-  * Timestamps
-  * Performance Metrics
-  * Conversation History
-
-### Audio Processing
-
-* SoundDevice
-* NumPy
-
-Purpose:
-
-* Real-time microphone recording
-* Audio buffering
-* Waveform manipulation
-* Silence detection
-
----
-
-## Current Features
-
-### Speech Recognition
-
-Implemented using OpenAI Whisper Base.
-
-Features:
-
-* Real-time microphone recording
-* Silence-based recording termination
-* Direct NumPy-to-Whisper transcription
-* No intermediate audio file required
-* Basic microphone error handling
-
-### Conversation Memory
-
-Planned integration using:
-
-* LangChain
-* MySQL
-
-Capabilities:
-
-* Retrieve previous conversations
-* Store assistant responses
-* Maintain conversational context
-
-### NLP Pipeline
-
-Current:
-
-* Named Entity Recognition (NER)
-
-Future:
-
-* Intent Classification
-* Entity-driven automation
-* Command execution
-
----
-
-## Engineering Decisions
-
-### Direct ndarray Transcription
-
-Initial Design:
-
-Microphone → WAV File → Whisper
-
-Current Design:
-
-Microphone → NumPy ndarray → Whisper
-
-Reason:
-
-* Reduced disk I/O
-* Faster processing
-* Simplified pipeline
-
-### Whisper Sample Rate
-
-Configured at:
+Configured at
 
 16,000 Hz
 
-Reason:
+Reason
 
-* Native Whisper sample rate
-* Eliminates additional resampling
-
-### Model Loading Strategy
-
-Current:
-
-Load Whisper model once during initialization.
-
-Reason:
-
-* Reduced transcription latency
-* Improved runtime performance
+- Native Whisper sample rate.
+- Eliminates runtime resampling.
+- Improved transcription efficiency.
 
 ---
 
-## Error Handling Implemented
+## Conversation Memory Strategy
 
-Current error scenarios handled include:
+Instead of storing complete conversational context inside every database row, Manhattan dynamically reconstructs the message history whenever a new user request is processed.
 
-* Invalid microphone channel configuration
-* Audio device unavailable
-* Recording initialization failures
+Advantages
 
-Additional error handling and recovery strategies are documented separately in the project documentation.
-
----
-
-## Performance Monitoring (Planned)
-
-The project architecture includes support for storing:
-
-* Recording Start Time
-* Recording End Time
-* Transcription Start Time
-* Transcription End Time
-* Attempt Count
-* Processing Duration
-* Total Response Time
-
-These metrics will be stored in MySQL for performance analysis.
+- Eliminates duplicated data.
+- Reduces database storage.
+- Simplifies maintenance.
+- Configurable conversation window.
+- Easier future enhancements.
 
 ---
 
-## Future Enhancements
+## Exception Handling
 
-### Voice Output
+Each independent component implements its own exception handling strategy.
 
-* Text-to-Speech (TTS)
+This enables:
 
-### Automation
+- Component isolation.
+- Consistent logging.
+- Easier debugging.
+- Accurate performance monitoring.
 
-* Windows System Commands
-* Application Launching
-* File Operations
-
-### AI Improvements
-
-* Better Context Retrieval
-* Intent Classification
-* Multi-turn Conversation Optimization
-
-### Monitoring
-
-* Detailed Performance Dashboard
-* Error Analytics
-* Usage Metrics
+Unexpected failures inside one component can be identified quickly through the Performance Monitor.
 
 ---
 
-## Lessons Learned
+# Performance Monitoring
 
-Throughout development, one of the most significant observations has been that building AI systems involves considerably more engineering work than model integration.
+Performance monitoring has been implemented as an independent component throughout the project.
 
-Areas such as:
+Each major component records:
 
-* Audio capture
-* Data preprocessing
-* Error handling
-* Memory management
-* Performance optimization
+- Conversation ID
+- Component Name
+- Start Time
+- End Time
+- Processing Duration
+- Execution Status
+- Error Message
 
-often require more effort than invoking the AI model itself.
-
-This project serves as a practical exploration of those engineering challenges.
+The collected metrics are stored in MySQL and provide detailed visibility into the execution pipeline for debugging, optimization, and future performance analysis.
 
 ---
 
-## Author
+# Future Enhancements
 
-Sai Krishna Mahidhar Devulapalli
+The current implementation focuses on establishing a robust and modular AI architecture. Future development will extend Manhattan with additional intelligent capabilities while maintaining the same modular design philosophy.
 
+## Speech Recognition
+
+Future improvements include:
+
+- Voice Activity Detection (VAD)
+- Speaker Identification
+- Multi-language Speech Recognition
+- Noise Profile Learning
+- Automatic Microphone Calibration
+
+---
+
+## Natural Language Processing
+
+Future improvements include:
+
+- Intent Classification
+- Relationship Extraction
+- Semantic Analysis
+- Command Detection
+- Keyword Ranking
+- Conversation Topic Detection
+- Context Classification
+
+---
+
+## Conversation Memory
+
+Future improvements include:
+
+- Semantic Memory Retrieval
+- Intelligent Conversation Ranking
+- Topic-based Conversation Search
+- Long-term Memory Optimization
+- Memory Summarization
+- Dynamic Context Window Selection
+
+---
+
+## Large Language Model
+
+Future improvements include:
+
+- Model Benchmarking
+- Prompt Engineering
+- Response Quality Evaluation
+- Multi-model Support
+- GPU Optimization
+
+---
+
+## GUI
+
+Future improvements include:
+
+- Modern Desktop Interface
+- Live Conversation Window
+- Voice Recording Indicators
+- Conversation History Viewer
+- Performance Dashboard
+- Settings Management
+
+---
+
+## Performance Monitoring
+
+Future improvements include:
+
+- Interactive Performance Dashboard
+- Processing Time Visualization
+- Component Performance Comparison
+- Error Analytics
+- Runtime Statistics
+- System Health Monitoring
+
+---
+
+# Lessons Learned
+
+Developing Manhattan has demonstrated that building an AI assistant involves significantly more engineering than simply integrating a Large Language Model.
+
+The majority of development effort has been spent designing and implementing the surrounding ecosystem required for an intelligent assistant.
+
+Key engineering areas explored include:
+
+- Speech Recognition
+- Audio Processing
+- Natural Language Processing
+- Conversation Memory
+- Database Design
+- Performance Monitoring
+- Exception Handling
+- Software Architecture
+- Modular Component Design
+- System Integration
+
+One of the biggest lessons learned throughout the project is that an AI assistant is fundamentally a collection of well-designed software components working together, with the Large Language Model serving as only one part of the overall system.
+
+The project continues to evolve as additional AI engineering concepts are explored and implemented.
+
+---
+
+# Project Status
+
+Current Status
+
+**Actively Under Development**
+
+Completed Components
+
+- Speech Recognition
+- Natural Language Processing
+- Conversation Memory
+- MySQL Integration
+- Performance Monitoring
+- Llama 3.2 Integration
+
+Currently Under Development
+
+- Desktop GUI
+- Response Streaming
+- Voice Output
+- Advanced NLP Features
+- Semantic Memory Retrieval
+
+---
+
+# Author
+
+**Sai Krishna Mahidhar Devulapalli**
+
+**Sr. Risk Control Analyst**  
 Amazon India
 
-Risk Control Analyst
+### Project
 
-Project: Manhattan - Offline AI Assistant
+**Manhattan — Offline AI Assistant**
 
-Year: 2026
+### Developed Using
 
+- Python
+- OpenAI Whisper
+- spaCy
+- Llama 3.2
+- MySQL
 
+### Project Purpose
+
+This project has been developed as a personal learning initiative to gain practical experience in Artificial Intelligence Engineering, Natural Language Processing, Speech Recognition, Large Language Model integration, software architecture, and backend system design.
+
+It serves as a portfolio project demonstrating the implementation of modular AI systems using locally hosted technologies and custom-built components.
+
+---
+
+# License
+
+This repository is intended for educational, research, and portfolio purposes.
+
+© 2026 Sai Krishna Mahidhar Devulapalli. All rights reserved.
