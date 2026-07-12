@@ -53,17 +53,16 @@ This project is not intended to compete with commercial AI assistants. Instead, 
 ```
 Manhattan/
 │
-├── speech_recognition.py         # OpenAI Whisper speech-to-text pipeline
-├── natural_language_processing.py# spaCy-based NLP preprocessing
-├── conversation_memory.py        # Conversation retrieval and context construction
-├── llama.py                      # Llama 3.2 integration and response generation
-├── database.py                   # MySQL connection and database operations
-├── performance_monitor.py        # Component performance logging
-├── gui.py                        # Desktop graphical user interface
+├── speech_recognition.py           # OpenAI Whisper speech-to-text pipeline
+├── natural_language_processing.py  # spaCy-based NLP preprocessing
+├── conversation_memory.py          # Conversation retrieval and context construction
+├── llama.py                        # Llama 3.2 integration and response generation
+├── database.py                     # MySQL operations and performance monitoring
+├── gui.py                          # Desktop graphical user interface
 │
-├── requirements.txt              # Python dependencies
-├── README.md                     # Project documentation
-└── LICENSE                       # Project license
+├── requirements.txt                # Python dependencies
+├── README.md                       # Project documentation
+└── LICENSE                         # Project license
 ```
 
 Each module has a single responsibility, allowing Manhattan to remain modular, maintainable, and scalable. Components communicate through well-defined interfaces, making it easier to debug, test, and extend individual modules without affecting the rest of the system.
