@@ -56,7 +56,7 @@ Manhattan/
 ├── speech_recognition.py           # OpenAI Whisper speech-to-text pipeline
 ├── natural_language_processing.py  # spaCy-based NLP preprocessing
 ├── conversation_memory.py          # Conversation retrieval and context construction
-├── llama.py                        # Llama 3.2 integration and response generation
+├── manhattan.py                    # Llama 3.2 integration and response generation
 ├── database.py                     # MySQL operations and performance monitoring
 ├── gui.py                          # Desktop graphical user interface
 │
