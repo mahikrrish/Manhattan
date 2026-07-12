@@ -156,7 +156,7 @@ Purpose
 
 - Retrieve previous conversations.
 - Construct conversational context.
-- Build LLM message history.
+- Build LLM-compatible message history.
 - Maintain configurable conversation windows.
 - Supply contextual memory to the LLM.
 
