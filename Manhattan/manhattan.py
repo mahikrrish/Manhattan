@@ -1,68 +1,65 @@
-try:
-    from ollama import chat
-except ModuleNotFoundError:
-    print('ModuleNotFoundError')
-try:
-    from Manhattan import database
-except ModuleNotFoundError:
-    print('ModuleNotFoundError')
-try:
-    import pandas as pd
-except ModuleNotFoundError:
-    print('ModuleNotFoundError')
+import json
+from ollama import chat
+import time
+from datetime import datetime
+import threading
+import database
+import conversation_memory
 
-
-def history():
-    past_conversation = database.log(action='GET').queries()
-    past_conversation = past_conversation.loc[:, ['User_Input', 'Response']]
-    history = []
-    for i in range(past_conversation.index.start, past_conversation.index.stop):
-        # 1. Wrap the User's question
-        history.append({
-            "role": "user",
-            "content": past_conversation['User_Input'][i]
-        })
-
-        # 2. Wrap the AI's previous answer
-        history.append({
-            "role": "assistant",
-            "content": past_conversation['Response'][i]
-        })
-    return history
-
-
-
-def AI_response(user_input, history=history()):
-    """"
-    Connects to the local Ollama instance and summarizes the text.
-    """
-    model_name = 'llama3.2:3b'
-    messages = [
-        {
-            'role': 'system',
-            'content': (
-            "You are a direct execution engine. "
-            "Output ONLY the final answer. "
-            "Never describe the task. Never list context. Never show reasoning. "
-            "If you cannot answer, say 'Insufficient data'. "
-            "Response format: RAW TEXT ONLY."
-
-        )
-        },
-        {
-            'role': 'user',
-            'content': f'Below is a request from a user along with history. Please identify the task and execute it accurately using the provided context. user_input = {user_input}.'
-                       f'And this is history = {history}. Only use the history if its relevant for the current task else discard the history and work on user input.'
-        }
-    ]
-    try:
-        response = chat(model=model_name, messages=messages,
-                        options={'temperature': 0.3, 'num_ctx': 8192, 'keep_alive': '10m'},
-                        stream=False
-                        )
-
-        return response['message']['content'], model_name, response['message']['role']
-        # print(response['message']['content'])
-    except Exception as e:
-        return f'Error connecting to Ollama : {str(e)}'
-# AI_response("What ia the capital of India?")
+class Manhattan(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.model_name = 'llama3.2:3b'
+        self.performance_log = {}
+        self.performance_log['component'] = 'Manhattan'
+    def run(self, nl_processed_data, conversation_id = None):
+        self.performance_log['conversation_id'] = conversation_id
+        memory_data  = conversation_memory.ConversationMemory().run(nl_processed_data, conversation_id)
+        if memory_data != 'Error Occurred! Cannot be processed. Please check the logs.':
+            return self.chat(memory_data), memory_data
+        else:
+            return memory_data
+    def chat(self, user_input):
+        try:
+            self.performance_log['start_time'] = time.time()
+            messages = [
+                {
+                    'role': 'system',
+                    'content': ('''
+                    You are Manhattan, an offline AI assistant.
+                    Personality:
+                        - Intelligent, witty and occasionally sarcastic.
+                        - Use light, playful sarcasm when it naturally fits the conversation.
+                        - Never use sarcasm to insult, belittle or humiliate the user.
+                        - Keep humor brief and relevant.
+                    Behavior:
+                        - Answer the user's latest request accurately.
+                        - Use previous conversation only when relevant.
+                        - Do not reveal internal reasoning.
+                        - If there is insufficient information, say so clearly.
+                        - Respond in plain text.
+                    '''
+                    )
+                }
+            ]
+            messages.extend(user_input)
+            response = chat(model=self.model_name, messages=messages,
+                            options={'temperature': 0.3, 'num_ctx': 16384, 'keep_alive': '10m'},
+                            stream=False
+                            )
+            self.performance_log['status'] = 'Success'
+            self.performance_log['error_message'] = None
+            return response['message']['content']
+        except Exception as e:
+            self.performance_log['status'] = 'Error'
+            self.performance_log['error_message'] = f'{type(e).__name__}: {e}'
+            return None
+        finally:
+            self.performance_log['end_time'] = time.time()
+            self.performance_monitor()
+    def performance_monitor(self):
+        now = datetime.now()
+        self.performance_log['created_at'] = now.strftime("%Y-%m-%d %H:%M:%S")
+        self.performance_log['duration'] = (self.performance_log['end_time'] -
+                                            self.performance_log['start_time'])
+        database.log().performance_monitor(perf_data=self.performance_log)

@@ -448,4 +448,4 @@ class NaturalLanguageProcessing(threading.Thread):
         self.performance_log['created_at'] = now.strftime("%Y-%m-%d %H:%M:%S")
         self.performance_log['duration'] = (self.performance_log['end_time'] -
                                             self.performance_log['start_time'])
-        database.log().performance_monitor(data=self.performance_log)
+        database.log().performance_monitor(perf_data=self.performance_log)

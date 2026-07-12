@@ -238,14 +238,17 @@ class SpeechRecognition(threading.Thread):
                 else:
                     print('There was an error with recording. Please try again.')
                     self.performance_log['status'] = 'Error'
+                    self.performance_log['end_time'] = time.time()
+                    self.performance_monitor()
             elif 'Device unavailable' in str(e):
                 print(sd.query_devices('Audio device', 'input'))
                 self.performance_log['status'] = 'Error'
                 self.performance_log['error_message'] += f'{type(e).__name__}: {e}\n'
+                self.performance_log['end_time'] = time.time()
+                self.performance_monitor()
         except Exception as e:
             self.performance_log['status'] = 'Error'
             self.performance_log['error_message'] += f'{type(e).__name__}: {e}\n'
-        finally:
             self.performance_log['end_time'] = time.time()
             self.performance_monitor()
     def transcription(self, recording):
@@ -331,4 +334,4 @@ class SpeechRecognition(threading.Thread):
         self.performance_log['created_at'] = now.strftime("%Y-%m-%d %H:%M:%S")
         self.performance_log['duration'] = (self.performance_log['end_time'] -
                                             self.performance_log['start_time'])
-        database.log().performance_monitor(data=self.performance_log)
+        database.log().performance_monitor(perf_data=self.performance_log)
