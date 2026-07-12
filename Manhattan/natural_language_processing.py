@@ -255,7 +255,7 @@ class NaturalLanguageProcessing(threading.Thread):
             self.performance_log['error_message'] = None
             return preprocessed_text
         except Exception as e:
-            self.performance_log['error_message'] = str(e)
+            self.performance_log['error_message'] = f'{type(e).__name__}: {e}'
             self.performance_log['status'] = 'Error'
             return None
         finally:

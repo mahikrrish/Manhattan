@@ -206,6 +206,7 @@ class SpeechRecognition(threading.Thread):
             print('Waiting for audio...')
         self.performance_log['start_time'] = time.time()
         self.performance_log['conversation_id'] = conversation_id
+        self.performance_log['error_message'] = ''
         last_speech_time = time.time()
         try:
             audio_recording = sd.InputStream(samplerate=self.sample_rate, channels=self.channels,
@@ -232,22 +233,19 @@ class SpeechRecognition(threading.Thread):
                 if self.attempt <= 2:
                     self.channels = 1
                     self.attempt += 1
-                    self.performance_log['error_message'] = str(e) + '\n'
+                    self.performance_log['error_message'] += f'{type(e).__name__}: {e}\n'
                     self.record(conversation_id)
                 else:
                     print('There was an error with recording. Please try again.')
                     self.performance_log['status'] = 'Error'
-                    self.performance_log['end_time'] = time.time()
-                    self.performance_monitor()
             elif 'Device unavailable' in str(e):
                 print(sd.query_devices('Audio device', 'input'))
                 self.performance_log['status'] = 'Error'
-                self.performance_log['error_message'] = str(e) + '\n'
-                self.performance_log['end_time'] = time.time()
-                self.performance_monitor()
+                self.performance_log['error_message'] += f'{type(e).__name__}: {e}\n'
         except Exception as e:
             self.performance_log['status'] = 'Error'
-            self.performance_log['error_message'] = str(e) + '\n'
+            self.performance_log['error_message'] += f'{type(e).__name__}: {e}\n'
+        finally:
             self.performance_log['end_time'] = time.time()
             self.performance_monitor()
     def transcription(self, recording):
@@ -289,16 +287,14 @@ class SpeechRecognition(threading.Thread):
             result = self.model.transcribe(recording)
             self.performance_log['error_message'] = None
             self.performance_log['status'] = 'Success'
+            return result['text']
         except Exception as e:
             self.performance_log['status'] = 'Error'
-            self.performance_log['error_message'] = str(e)
+            self.performance_log['error_message'] += f'{type(e).__name__}: {e}'
+            return None
         finally:
             self.performance_log['end_time'] = time.time()
             self.performance_monitor()
-        if self.performance_log['status'] == 'Success':
-            return result['text']
-        else:
-            return None
     def performance_monitor(self):
         """
         Record execution metrics for the SpeechToText pipeline.
@@ -330,6 +326,8 @@ class SpeechRecognition(threading.Thread):
             None
         """
         now = datetime.now()
+        if self.performance_log['error_message'] is not None:
+            self.performance_log['error_message'] = self.performance_log['error_message'].strip()
         self.performance_log['created_at'] = now.strftime("%Y-%m-%d %H:%M:%S")
         self.performance_log['duration'] = (self.performance_log['end_time'] -
                                             self.performance_log['start_time'])
