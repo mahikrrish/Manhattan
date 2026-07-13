@@ -1,20 +1,21 @@
 import natural_language_processing
-import conversation_memory
 import time
 import database
 from datetime import datetime
 import manhattan
 from Manhattan.speech_recognition import SpeechRecognition
+import pandas as pd
 
 stt = SpeechRecognition()
 nlp = natural_language_processing.NaturalLanguageProcessing()
 manh = manhattan.Manhattan()
-db = database.log()
+db = database.DatabaseManager()
 
 def process_conversation(conv_data):
     conv_data['processed_text'] = nlp.run(raw_text=conv_data['raw_text'],
                                           conversation_id=conv_data['conversation_id'])
-    conv_data['ai_response'], conv_data['conversationmemory_input'] = manh.run(nl_processed_data=conv_data['processed_text'], conversation_id=conv_data['conversation_id'])
+    conv_data['ai_response'], conv_data['conversationmemory_input'] = manh.run(nl_processed_data=conv_data['processed_text'],
+                                                                               conversation_id=conv_data['conversation_id'])
     print('AI Response: ', conv_data['ai_response'])
     conv_data['run_end_time'] = time.time()
     if conv_data['ai_response'] is not None:
@@ -25,6 +26,12 @@ def process_conversation(conv_data):
     db.inject_conversation(conv_data=conv_data)
 
 print("Welcome to Manhattan")
+df = db.retrieve_conversation(row_limit=10)
+df = df.loc[:, ['raw_text', 'ai_response']]
+for i in range(df.index.start, df.index.stop):
+    if pd.notna(df.raw_text[i]) and pd.notna(df.ai_response[i]):
+        print('User: ', df.raw_text[i])
+        print('AI Response: ', df.ai_response[i])
 while True:
     conv_data = {}
     now = datetime.now()
@@ -47,7 +54,3 @@ while True:
         pass
     else:
         break
-
-
-
-

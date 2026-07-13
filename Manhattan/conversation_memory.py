@@ -158,7 +158,7 @@ class ConversationMemory(threading.Thread):
                 - ai_response
         """
         try:
-            past_conversation = database.log().retrieve_conversation(row_limit)
+            past_conversation = database.DatabaseManager().retrieve_conversation(row_limit)
             past_conversation = past_conversation.loc[:, ['raw_text', 'processed_text', 'ai_response']]
             return past_conversation
         except (KeyError, DatabaseError) as e:
@@ -226,12 +226,12 @@ class ConversationMemory(threading.Thread):
             conversation_history = []
             conversation = self.retrieve_conversation(row_limit=10)
             for i in range(conversation.index.start, conversation.index.stop):
-                if pd.notna(conversation.processed_text[i]):
+                if pd.notna(conversation.processed_text[i]) \
+                        and pd.notna(conversation.ai_response[i]):
                     conversation_history.append({
                         "role": "user",
                         "content": json.dumps(json.loads(conversation.processed_text[i]))
                     })
-                if pd.notna(conversation.ai_response[i]):
                     conversation_history.append({
                         "role": "assistant",
                         "content": str(conversation.ai_response[i])
@@ -289,4 +289,4 @@ class ConversationMemory(threading.Thread):
         self.performance_log['created_at'] = now.strftime("%Y-%m-%d %H:%M:%S")
         self.performance_log['duration'] = (self.performance_log['end_time'] -
                                             self.performance_log['start_time'])
-        database.log().performance_monitor(perf_data=self.performance_log)
+        database.DatabaseManager().performance_monitor(perf_data=self.performance_log)
