@@ -5,7 +5,7 @@ import pandas as pd
 import warnings
 from PIL import Image
 warnings.filterwarnings('ignore') #To suppress all warnings across the entire script
-
+from CTkMessagebox import CTkMessagebox
 import natural_language_processing
 import time
 import database
@@ -42,6 +42,7 @@ class UserInterface(threading.Thread, customtkinter.CTk):
         self.ai_bubble_color = "#C9F1E2"
 
         self.input_frame_color = "#F2F2F2"
+        self.button_fg_color = "#F2F2F2"
         self.textbox_border_color = "#FFC0CB"
 
         self.corner_radius = 20
@@ -110,10 +111,10 @@ class UserInterface(threading.Thread, customtkinter.CTk):
                                                 font = self.font)
         self.textbox.pack(side="left", expand=True, fill="x", padx=(100,0), pady=15)
         self.microphone = customtkinter.CTkButton(input_frame, width=0, text="", command=self.microphone_recording, corner_radius=self.corner_radius,
-                                                  height=45, image=microphone_image, fg_color="transparent", hover_color=None)
+                                                  height=45, image=microphone_image, fg_color=self.button_fg_color)
         self.microphone.pack(side="left", pady=15, padx=(10,10))
         self.submit_button = customtkinter.CTkButton(input_frame, width=0, text="", command=self.read_textbox, corner_radius=self.corner_radius,
-                                                     height=45, image=button_image,fg_color="transparent",  hover_color=None)
+                                                     height=45, image=button_image,fg_color=self.button_fg_color)
         self.submit_button.pack(padx=(3,73), pady=15, side="right")
 
     def display_message(self, input_text, role):
@@ -180,6 +181,7 @@ class UserInterface(threading.Thread, customtkinter.CTk):
         except Exception as e:
             self.conv_data['status'] = 'Error'
             self.conv_data['error_message'] = f'{type(e).__name__}: {e}'
+            CTkMessagebox(title="Error", message=self.conv_data['error_message'], icon="cancel")
         finally:
             self.conv_data['run_end_time'] = time.time()
             db.inject_conversation(conv_data=self.conv_data)
