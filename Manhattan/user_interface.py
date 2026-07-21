@@ -152,7 +152,11 @@ class UserInterface(threading.Thread, customtkinter.CTk):
         self.textbox.delete("0.0", "end")
         self.display_message(self.conv_data['raw_text'], role="user")
         self.process_initiate()
-        self.process_carry_forward()
+        worker = threading.Thread(
+            target=self.process_carry_forward,
+            daemon=True
+        )
+        worker.start()
     def microphone_recording(self):
         self.conv_data['input_mode'] = "Voice"
         self.process_initiate()
@@ -172,7 +176,10 @@ class UserInterface(threading.Thread, customtkinter.CTk):
             self.conv_data['ai_response'], self.conv_data['conversationmemory_input'] = manh.run(
                 nl_processed_data=self.conv_data['processed_text'],
                 conversation_id=self.conv_data['conversation_id'])
-            self.display_message(self.conv_data['ai_response'], role="ai")
+            self.after(
+                0,
+                lambda: self.display_message(self.conv_data['ai_response'], role="ai")
+            )
             if self.conv_data['ai_response'] is not None:
                 self.conv_data['status'] = 'Success'
                 self.conv_data['error_message'] = None
@@ -181,7 +188,10 @@ class UserInterface(threading.Thread, customtkinter.CTk):
         except Exception as e:
             self.conv_data['status'] = 'Error'
             self.conv_data['error_message'] = f'{type(e).__name__}: {e}'
-            CTkMessagebox(title="Error", message=self.conv_data['error_message'], icon="cancel")
+            self.after(
+                0,
+                lambda: CTkMessagebox(title="Error", message=self.conv_data['error_message'], icon="cancel")
+            )
         finally:
             self.conv_data['run_end_time'] = time.time()
             db.inject_conversation(conv_data=self.conv_data)
