@@ -228,15 +228,32 @@ class UserInterface( customtkinter.CTk):
         )
         microphone_worker.start()
     def voice_worker(self):
-        microphone_text = stt.run(conversation_id=self.conv_data['conversation_id'])
-        self.after(
-            0,
-            lambda: self.toggle_controls(state="normal")
-        )
-        self.after(
-            0,
-            lambda: self.textbox.insert("end", microphone_text)
-        )
+        try:
+            microphone_text = stt.run(conversation_id=self.conv_data['conversation_id'])
+            if not microphone_text:
+                self.after(
+                    0,
+                    lambda: self.toggle_controls(state="normal")
+                )
+                self.after(
+                    0,
+                    lambda: self.textbox.insert("end", microphone_text)
+                )
+            else:
+                raise Exception
+        except Exception as e:
+            self.after(
+                0,
+                lambda: CTkMessagebox(title="Error!",
+                                      message=f'Speech Recognition failed. {type(e).__name__}: {e}. Kindly try again. ',
+                                      icon="warning")
+            )
+        finally:
+            self.after(
+                0,
+                lambda: self.toggle_controls(state="normal")
+            )
+
 
     def process_initiate(self):
         now = datetime.now()
@@ -251,15 +268,15 @@ class UserInterface( customtkinter.CTk):
             self.conv_data['ai_response'], self.conv_data['conversationmemory_input'] = manh.run(
                 nl_processed_data=self.conv_data['processed_text'],
                 conversation_id=self.conv_data['conversation_id'])
-            self.after(
-                0,
-                lambda: self.display_message(self.conv_data['ai_response'], role="ai")
-            )
             if self.conv_data['ai_response'] is not None:
                 self.conv_data['status'] = 'Success'
                 self.conv_data['error_message'] = None
             else:
                 raise Exception
+            self.after(
+                0,
+                lambda: self.display_message(self.conv_data['ai_response'], role="ai")
+            )
         except Exception as e:
             self.conv_data['status'] = 'Error'
             self.conv_data['error_message'] = f'{type(e).__name__}: {e}'
