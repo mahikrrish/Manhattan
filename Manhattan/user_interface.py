@@ -204,18 +204,19 @@ class UserInterface( customtkinter.CTk):
             return False
 
     def read_textbox(self):
-        self.conv_data['raw_text'] = self.textbox.get("0.0", "end")
-        if not self.conv_data.get('run_start_time'):
-            self.conv_data['run_start_time'] = time.time()
-        self.textbox.delete("0.0", "end")
-        self.toggle_controls(state="disabled")
-        self.display_message(self.conv_data['raw_text'], role="user")
-        self.process_initiate()
-        worker = threading.Thread(
-            target=self.process_carry_forward,
-            daemon=True
-        )
-        worker.start()
+        if self.textbox.get("0.0", "end").strip():
+            self.conv_data['raw_text'] = self.textbox.get("0.0", "end")
+            if not self.conv_data.get('run_start_time'):
+                self.conv_data['run_start_time'] = time.time()
+            self.textbox.delete("0.0", "end")
+            self.toggle_controls(state="disabled")
+            self.display_message(self.conv_data['raw_text'], role="user")
+            self.process_initiate()
+            worker = threading.Thread(
+                target=self.process_carry_forward,
+                daemon=True
+            )
+            worker.start()
     def microphone_recording(self):
         self.toggle_controls(state="disabled")
         self.conv_data['input_mode'] = "Voice"
