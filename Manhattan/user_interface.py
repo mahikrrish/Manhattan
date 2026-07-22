@@ -21,9 +21,8 @@ db = database.DatabaseManager()
 
 
 
-class UserInterface(threading.Thread, customtkinter.CTk):
+class UserInterface( customtkinter.CTk):
     def __init__(self):
-        threading.Thread.__init__(self, daemon=True)
         customtkinter.CTk.__init__(self)
         self.base_dir = Path(__file__).resolve().parent
         self.conv_data = {}
@@ -80,13 +79,34 @@ class UserInterface(threading.Thread, customtkinter.CTk):
                                                  width=20, height=1, font=customtkinter.CTkFont(family = "Cooper Black", size = 10))
         developer_label.place(relx = 0.98, rely = 0.85, anchor = "se")
 
+    def retrieve_conversation(self):
+        action_response = self.conversation_history()
+        if action_response:
+            self.after(
+                0,
+                lambda: CTkMessagebox(title="Success", message="Previous Data Retrieved", icon="check")
+            )
+        else:
+            self.after(
+                0,
+                lambda: CTkMessagebox(title="Error", message="Error retrieving previous data", icon="cancel")
+            )
     def chat_frame(self):
         chat_frame = customtkinter.CTkFrame(self, fg_color=self.chat_frame_color)
         chat_frame.pack(fill='both', expand=True)
         chat_frame.pack_propagate(False)
         self.chat_messages = customtkinter.CTkScrollableFrame(chat_frame, fg_color=self.chat_scrollable_frame_color)
         self.chat_messages.pack(fill='both', expand=True, padx=100, pady=30)
-        self.conversation_history()
+
+        retrieve_button_icon_path = self.base_dir / "assets" /"data-retrieval.png"
+        retrieve_button_raw_image = Image.open(retrieve_button_icon_path)
+        retrieve_button_image = customtkinter.CTkImage(light_image=retrieve_button_raw_image, size=(40, 40))
+
+        self.retrieve_conversation_button = customtkinter.CTkButton(chat_frame, fg_color=self.button_fg_color, text="",
+                                                               image=retrieve_button_image, command=self.retrieve_conversation, corner_radius=self.corner_radius,
+                                                               width=0, height=45)
+        self.retrieve_conversation_button.pack(side = "right", padx = 10, pady = 10)
+
         self.update_idletasks()
         self.after(
             100,
@@ -138,18 +158,20 @@ class UserInterface(threading.Thread, customtkinter.CTk):
 
 
     def conversation_history(self):
-        df = db.retrieve_conversation(row_limit=10)
+        df = db.retrieve_conversation(row_limit=30)
         df = df.loc[:, ['raw_text', 'ai_response']]
         for i in range(df.index.start, df.index.stop):
             if pd.notna(df.raw_text[i]) and pd.notna(df.ai_response[i]):
                 self.display_message(df.raw_text[i], role ="user")
                 self.display_message(df.ai_response[i], role ="ai")
+        return True
 
     def read_textbox(self):
         self.conv_data['raw_text'] = self.textbox.get("0.0", "end")
         if not self.conv_data.get('run_start_time'):
             self.conv_data['run_start_time'] = time.time()
         self.textbox.delete("0.0", "end")
+        self.toggle_controls(state="disabled")
         self.display_message(self.conv_data['raw_text'], role="user")
         self.process_initiate()
         worker = threading.Thread(
@@ -158,15 +180,30 @@ class UserInterface(threading.Thread, customtkinter.CTk):
         )
         worker.start()
     def microphone_recording(self):
+        self.toggle_controls(state="disabled")
         self.conv_data['input_mode'] = "Voice"
         self.process_initiate()
         self.conv_data['run_start_time'] = time.time()
+        microphone_worker = threading.Thread(
+            target = self.voice_worker,
+            daemon = True,
+        )
+        microphone_worker.start()
+    def voice_worker(self):
         microphone_text = stt.run(conversation_id=self.conv_data['conversation_id'])
-        self.textbox.insert("end", microphone_text)
+        self.after(
+            0,
+            lambda: self.toggle_controls(state="normal")
+        )
+        self.after(
+            0,
+            lambda: self.textbox.insert("end", microphone_text)
+        )
 
     def process_initiate(self):
         now = datetime.now()
-        self.conv_data['created_at'] = now.strftime("%Y-%m-%d %H:%M:%S")
+        if not self.conv_data.get('created_at'):
+            self.conv_data['created_at'] = now.strftime("%Y-%m-%d %H:%M:%S")
         if not self.conv_data.get('conversation_id'):
             self.conv_data['conversation_id'] = db.create_conversation(input_mode=self.conv_data['input_mode'])
     def process_carry_forward(self):
@@ -197,6 +234,16 @@ class UserInterface(threading.Thread, customtkinter.CTk):
             db.inject_conversation(conv_data=self.conv_data)
             self.conv_data.clear()
             self.conv_data['input_mode'] = "Text"
+            self.after(
+                0,
+                lambda: self.toggle_controls(state = "normal")
+            )
+
+    def toggle_controls(self, state):
+        self.textbox.configure(state=state)
+        self.microphone.configure(state=state)
+        self.submit_button.configure(state=state)
+        self.retrieve_conversation_button.configure(state=state)
 
 
 if __name__ == '__main__':
