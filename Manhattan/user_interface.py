@@ -64,6 +64,7 @@ class UserInterface( customtkinter.CTk):
         self.header_frame()
         self.chat_frame()
         self.input_frame()
+        self.textbox.bind("<Return>", self.enter_key_action)
 
     def header_frame(self):
         header_frame = customtkinter.CTkFrame(self, fg_color=self.header_frame_fg_color, height=70,
@@ -86,11 +87,6 @@ class UserInterface( customtkinter.CTk):
                 0,
                 lambda: CTkMessagebox(title="Success", message="Previous Data Retrieved", icon="check")
             )
-        else:
-            self.after(
-                0,
-                lambda: CTkMessagebox(title="Error", message="Error retrieving previous data", icon="cancel")
-            )
     def chat_frame(self):
         chat_frame = customtkinter.CTkFrame(self, fg_color=self.chat_frame_color)
         chat_frame.pack(fill='both', expand=True)
@@ -98,14 +94,30 @@ class UserInterface( customtkinter.CTk):
         self.chat_messages = customtkinter.CTkScrollableFrame(chat_frame, fg_color=self.chat_scrollable_frame_color)
         self.chat_messages.pack(fill='both', expand=True, padx=100, pady=30)
 
-        retrieve_button_icon_path = self.base_dir / "assets" /"data-retrieval.png"
-        retrieve_button_raw_image = Image.open(retrieve_button_icon_path)
-        retrieve_button_image = customtkinter.CTkImage(light_image=retrieve_button_raw_image, size=(40, 40))
+        try:
+            retrieve_button_icon_path = self.base_dir / "assets" / "data-retrieval.png"
+            retrieve_button_raw_image = Image.open(retrieve_button_icon_path)
+            retrieve_button_image = customtkinter.CTkImage(light_image=retrieve_button_raw_image, size=(40, 40))
 
-        self.retrieve_conversation_button = customtkinter.CTkButton(chat_frame, fg_color=self.button_fg_color, text="",
-                                                               image=retrieve_button_image, command=self.retrieve_conversation, corner_radius=self.corner_radius,
-                                                               width=0, height=45)
-        self.retrieve_conversation_button.pack(side = "right", padx = 10, pady = 10)
+            self.retrieve_conversation_button = customtkinter.CTkButton(chat_frame, fg_color=self.button_fg_color,
+                                                                        text="",
+                                                                        image=retrieve_button_image,
+                                                                        command=self.retrieve_conversation,
+                                                                        corner_radius=self.corner_radius,
+                                                                        width=0, height=45)
+            self.retrieve_conversation_button.pack(side="right", padx=10, pady=10)
+        except Exception as e:
+            self.after(
+                0,
+                lambda: CTkMessagebox(title="Warning Message!",
+                                      message=f'Image loading failed. {type(e).__name__}: {e}. But messages will retrieve ', icon="warning")
+            )
+            self.retrieve_conversation_button = customtkinter.CTkButton(chat_frame, fg_color=self.button_fg_color,
+                                                                       text="Retrieve",
+                                                                       command=self.retrieve_conversation,
+                                                                       corner_radius=self.corner_radius,
+                                                                       width=0, height=45)
+            self.retrieve_conversation_button.pack(side="right", padx=10, pady=10)
 
         self.update_idletasks()
         self.after(
@@ -119,23 +131,41 @@ class UserInterface( customtkinter.CTk):
         input_frame.pack(fill='x')
         input_frame.pack_propagate(False)
 
-        send_button_icon_path = self.base_dir/"assets"/"send-button.png"
-        send_button_raw_image = Image.open(send_button_icon_path)
-        button_image = customtkinter.CTkImage(light_image=send_button_raw_image, size=(40,40))
+        self.textbox = customtkinter.CTkTextbox(input_frame, corner_radius=self.corner_radius,
+                                                border_color=self.textbox_border_color, border_width=2,
+                                                font=self.font)
+        self.textbox.pack(side="left", expand=True, fill="x", padx=(100, 0), pady=15)
 
-        microphone_icon_path = self.base_dir/"assets"/"microphone.png"
-        microphone_raw_image = Image.open(microphone_icon_path)
-        microphone_image = customtkinter.CTkImage(light_image=microphone_raw_image, size=(40,40))
+        try:
+            send_button_icon_path = self.base_dir / "assets" / "send-button.png"
+            send_button_raw_image = Image.open(send_button_icon_path)
+            button_image = customtkinter.CTkImage(light_image=send_button_raw_image, size=(40, 40))
 
-        self.textbox = customtkinter.CTkTextbox(input_frame, corner_radius=self.corner_radius, border_color=self.textbox_border_color, border_width=2,
-                                                font = self.font)
-        self.textbox.pack(side="left", expand=True, fill="x", padx=(100,0), pady=15)
-        self.microphone = customtkinter.CTkButton(input_frame, width=0, text="", command=self.microphone_recording, corner_radius=self.corner_radius,
-                                                  height=45, image=microphone_image, fg_color=self.button_fg_color)
-        self.microphone.pack(side="left", pady=15, padx=(10,10))
-        self.submit_button = customtkinter.CTkButton(input_frame, width=0, text="", command=self.read_textbox, corner_radius=self.corner_radius,
-                                                     height=45, image=button_image,fg_color=self.button_fg_color)
-        self.submit_button.pack(padx=(3,73), pady=15, side="right")
+            microphone_icon_path = self.base_dir / "assets" / "microphone.png"
+            microphone_raw_image = Image.open(microphone_icon_path)
+            microphone_image = customtkinter.CTkImage(light_image=microphone_raw_image, size=(40, 40))
+
+            self.microphone = customtkinter.CTkButton(input_frame, width=0, text="", command=self.microphone_recording,
+                                                      corner_radius=self.corner_radius,
+                                                      height=45, image=microphone_image, fg_color=self.button_fg_color)
+            self.microphone.pack(side="left", pady=15, padx=(10, 10))
+            self.submit_button = customtkinter.CTkButton(input_frame, width=0, text="", command=self.read_textbox,
+                                                         corner_radius=self.corner_radius,
+                                                         height=45, image=button_image, fg_color=self.button_fg_color)
+            self.submit_button.pack(padx=(3, 73), pady=15, side="right")
+        except Exception as e:
+            self.after(
+                0,
+                lambda: CTkMessagebox(title="Warning Message!", message=f'Image loading failed. {type(e).__name__}: {e}. But program will work ', icon="warning")
+            )
+            self.microphone = customtkinter.CTkButton(input_frame, width=0, text="Mic", command=self.microphone_recording,
+                                                      corner_radius=self.corner_radius,
+                                                      height=45, fg_color=self.button_fg_color)
+            self.microphone.pack(side="left", pady=15, padx=(10, 10))
+            self.submit_button = customtkinter.CTkButton(input_frame, width=0, text="Submit", command=self.read_textbox,
+                                                         corner_radius=self.corner_radius,
+                                                         height=45, fg_color=self.button_fg_color)
+            self.submit_button.pack(padx=(3, 73), pady=15, side="right")
 
     def display_message(self, input_text, role):
         if role == "user":
@@ -158,13 +188,20 @@ class UserInterface( customtkinter.CTk):
 
 
     def conversation_history(self):
-        df = db.retrieve_conversation(row_limit=30)
-        df = df.loc[:, ['raw_text', 'ai_response']]
-        for i in range(df.index.start, df.index.stop):
-            if pd.notna(df.raw_text[i]) and pd.notna(df.ai_response[i]):
-                self.display_message(df.raw_text[i], role ="user")
-                self.display_message(df.ai_response[i], role ="ai")
-        return True
+        try:
+            df = db.retrieve_conversation(row_limit=30)
+            df = df.loc[:, ['raw_text', 'ai_response']]
+            for i in range(df.index.start, df.index.stop):
+                if pd.notna(df.raw_text[i]) and pd.notna(df.ai_response[i]):
+                    self.display_message(df.raw_text[i], role="user")
+                    self.display_message(df.ai_response[i], role="ai")
+            return True
+        except Exception as e:
+            self.after(
+                0,
+                lambda: CTkMessagebox(title="Error", message=f'{type(e).__name__}: {e}', icon="cancel")
+            )
+            return False
 
     def read_textbox(self):
         self.conv_data['raw_text'] = self.textbox.get("0.0", "end")
@@ -244,6 +281,10 @@ class UserInterface( customtkinter.CTk):
         self.microphone.configure(state=state)
         self.submit_button.configure(state=state)
         self.retrieve_conversation_button.configure(state=state)
+
+    def enter_key_action(self, event):
+        self.read_textbox()
+        return "break"
 
 
 if __name__ == '__main__':
