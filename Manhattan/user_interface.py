@@ -230,7 +230,7 @@ class UserInterface( customtkinter.CTk):
     def voice_worker(self):
         try:
             microphone_text = stt.run(conversation_id=self.conv_data['conversation_id'])
-            if not microphone_text:
+            if microphone_text:
                 self.after(
                     0,
                     lambda: self.toggle_controls(state="normal")
