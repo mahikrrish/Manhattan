@@ -152,17 +152,24 @@ class Manhattan(threading.Thread):
                 LLM-compatible message history used for
                 inference.
 
-            str:
-                Returns an error message if Conversation
+            str | None:
+                Failure:
+
+                (
+                    None,
+                    error_message
+                )
+
+                Returns None and error message if Conversation
                 Memory fails to construct conversation
                 context.
         """
         self.performance_log['conversation_id'] = conversation_id
         conversation_history  = conversation_memory.ConversationMemory().run(nl_processed_data, conversation_id)
         if conversation_history != 'Error Occurred! Cannot be processed. Please check the logs.':
-            return self.chat(conversation_history), conversation_history
+            return self.chat(user_input=conversation_history), conversation_history
         else:
-            return conversation_history
+            return None, conversation_history
     def chat(self, user_input):
         """
         Generate a response using the offline language model.

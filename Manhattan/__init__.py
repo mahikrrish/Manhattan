@@ -1,1 +1,5 @@
-from . import offlineai
+"""
+Manhattan Offline AI Assistant
+
+Main package for the Manhattan project.
+"""
