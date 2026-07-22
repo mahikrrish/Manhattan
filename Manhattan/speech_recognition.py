@@ -34,7 +34,7 @@ Current Architecture:
 
 
 Author:
-    Krishna Mahidhar
+    Sai Krishna Mahidhar Devulapalli
 
 Project:
     Manhattan - Offline AI Assistant

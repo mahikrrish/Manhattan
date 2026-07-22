@@ -76,7 +76,7 @@ Database tables currently managed:
 - performance_monitor
 
 Author:
-    Krishna Mahidhar
+    Sai Krishna Mahidhar Devulapalli
 
 Project:
     Manhattan - Offline AI Assistant
@@ -87,7 +87,7 @@ import mysql.connector
 import pandas as pd
 import threading
 import json
-
+import config
 
 class DatabaseManager(threading.Thread):
     """
@@ -178,10 +178,11 @@ class DatabaseManager(threading.Thread):
         """
         try:
             self.db = mysql.connector.connect(
-                host="localhost",
-                user="root",
-                password="mahi",
-                database="offlineai"
+                host=config.DB_HOST,
+                port=config.DB_PORT,
+                user=config.DB_USER,
+                password=config.DB_PASSWORD,
+                database=config.DB_NAME
             )
             self.mycursor = self.db.cursor()
             self.db_connection = True

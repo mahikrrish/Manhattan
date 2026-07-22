@@ -56,6 +56,7 @@ Project:
 
 from datetime import datetime
 from pathlib import Path
+import os
 import warnings
 import time
 import threading
@@ -222,7 +223,7 @@ class UserInterface(customtkinter.CTk):
         self.minsize(900,600)
         self.configure(fg_color=self.window_color)
 
-        window_icon_path = self.base_dir/"assets"/"Manhattan Icon.ico"
+        window_icon_path = os.path.join(self.base_dir,"assets","Manhattan Icon.ico")
         self.iconbitmap(str(window_icon_path))
         self.resizable(width=True, height=True)
         self.grid_columnconfigure(0, weight=1)
@@ -324,7 +325,7 @@ class UserInterface(customtkinter.CTk):
         self.chat_messages.pack(fill='both', expand=True, padx=100, pady=30)
 
         try:
-            retrieve_button_icon_path = self.base_dir / "assets" / "data-retrieval.png"
+            retrieve_button_icon_path = os.path.join(self.base_dir, "assets", "data-retrieval.png")
             retrieve_button_raw_image = Image.open(retrieve_button_icon_path)
             retrieve_button_image = customtkinter.CTkImage(light_image=retrieve_button_raw_image,
                                                            size=(40, 40))
@@ -393,12 +394,13 @@ class UserInterface(customtkinter.CTk):
         self.textbox.pack(side="left", expand=True, fill="x", padx=(100, 0), pady=15)
 
         try:
-            send_button_icon_path = self.base_dir / "assets" / "send-button.png"
+            send_button_icon_path = os.path.join(self.base_dir, "assets", "send-button.png")
             send_button_raw_image = Image.open(send_button_icon_path)
             button_image = customtkinter.CTkImage(light_image=send_button_raw_image,
                                                   size=(40, 40))
 
-            microphone_icon_path = self.base_dir / "assets" / "microphone.png"
+            microphone_icon_path = os.path.join(self.base_dir, "assets", "microphone.png")
+            microphone_raw_image = Image.open(microphone_icon_path)
             microphone_raw_image = Image.open(microphone_icon_path)
             microphone_image = customtkinter.CTkImage(light_image=microphone_raw_image,
                                                       size=(40, 40))
@@ -474,11 +476,9 @@ class UserInterface(customtkinter.CTk):
         """
         if role == "user":
             fg_color = self.user_bubble_color
-            # border_color = "#FADADD"
             anchor = "e"
         else:
             fg_color = self.ai_bubble_color
-            # border_color = "#E6E6FA"
             anchor = "w"
         message_frame = customtkinter.CTkFrame(self.chat_messages,
                                                fg_color=fg_color,
@@ -856,7 +856,7 @@ if __name__ == '__main__':
     splash.geometry("550x550")
     splash.overrideredirect(True)
     base_dir = Path(__file__).resolve().parent
-    image_path = base_dir/"assets"/"Manhattan Icon.png"
+    image_path = os.path.join(base_dir, "assets", "Manhattan Icon.png")
     raw_img = Image.open(image_path)
     splash_img = customtkinter.CTkImage(light_image=raw_img, size=(550, 550))
     img_label = customtkinter.CTkLabel(splash, text="", image=splash_img)
