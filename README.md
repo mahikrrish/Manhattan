@@ -33,6 +33,7 @@ The project integrates Speech Recognition, Natural Language Processing (NLP), Co
   <img src="docs/Manhattan Workflow.jpg" alt="Manhattan Workflow Diagram" width="850">
 </p>
 
+---
 
 ## Project Structure
 
@@ -41,11 +42,13 @@ Manhattan/
 │
 ├── config.py                       # One-time database setup — run first
 ├── user_interface.py               # Main application entry point
+│
 ├── speech_recognition.py           # OpenAI Whisper speech-to-text pipeline
 ├── natural_language_processing.py  # spaCy NLP preprocessing
 ├── conversation_memory.py          # Conversation retrieval and context construction
 ├── manhattan.py                    # Llama 3.2:3B integration and response generation
 ├── database.py                     # MySQL operations and performance monitoring
+│
 ├── database_schema.sql             # Database and table definitions
 ├── requirements.txt                # Python dependencies
 │
@@ -88,8 +91,6 @@ Before installing Python dependencies, the following must be installed on your s
 
 FFmpeg is required by OpenAI Whisper for audio processing.
 
-**Windows**
-
 Download FFmpeg from https://ffmpeg.org/download.html
 
 Extract the archive and add the `bin` folder to your system PATH.
@@ -98,6 +99,8 @@ Verify installation:
 ```
 ffmpeg -version
 ```
+
+> **Note:** Manhattan has been developed and tested on Windows only. Installation on macOS or Linux has not been tested.
 
 ---
 
