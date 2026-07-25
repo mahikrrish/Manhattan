@@ -33,23 +33,6 @@ The project integrates Speech Recognition, Natural Language Processing (NLP), Co
   <img src="docs/Manhattan Workflow.jpg" alt="Manhattan Workflow Diagram" width="850">
 </p>
 
-### Pipeline Flow
-
-```
-User Input (Text / Voice)
-        ↓
-Natural Language Processing (spaCy)
-        ↓
-Conversation Memory (MySQL retrieval)
-        ↓
-Llama 3.2:3B (Ollama — local inference)
-        ↓
-Assistant Response
-        ↓
-MySQL (conversation + performance stored)
-```
-
----
 
 ## Project Structure
 
