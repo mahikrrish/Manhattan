@@ -99,17 +99,6 @@ Verify installation:
 ffmpeg -version
 ```
 
-**macOS**
-```
-brew install ffmpeg
-```
-
-**Linux (Ubuntu/Debian)**
-```
-sudo apt update
-sudo apt install ffmpeg
-```
-
 ---
 
 ### 2. Ollama
