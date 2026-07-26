@@ -183,7 +183,7 @@ try:
                 messagebox.showinfo("Update", "Whisper model verified.\n.")
             else:
                 config_message += "Whisper model not verified.\n"
-                messagebox.showinfo("Update", "Whisper model verified.\n.")
+                messagebox.showinfo("Update", "Whisper model not verified.\n.")
         except Exception as e:
             messagebox.showerror("Error",
                                  f"{type(e).__name__}: {e}")
