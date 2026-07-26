@@ -404,7 +404,6 @@ The largest lesson: **the LLM is only one component of an AI system.** The engin
 
 **Sai Krishna Mahidhar Devulapalli**
 
-Sr. Risk Control Analyst — Amazon India
 
 - GitHub: [github.com/mahikrrish](https://github.com/mahikrrish)
 - LinkedIn: [linkedin.com/in/sai-krishnamahidhar-devulapalli-811158210](https://www.linkedin.com/in/sai-krishnamahidhar-devulapalli-811158210/)
