@@ -87,24 +87,7 @@ Manhattan/
 
 The following must be installed manually before running the configuration utility.
 
-### 1. FFmpeg
-
-FFmpeg is required by OpenAI Whisper for audio processing. It must be installed manually — the configuration utility does not install FFmpeg automatically.
-
-Download FFmpeg from https://ffmpeg.org/download.html
-
-Extract the archive and add the `bin` folder to your system PATH.
-
-Verify installation:
-```
-ffmpeg -version
-```
-
-> **Note:** Manhattan has been developed and tested on Windows only. Installation on macOS or Linux has not been tested.
-
----
-
-### 2. Ollama
+### 1. Ollama
 
 Ollama is required to run Llama 3.2:3B locally and is a mandatory prerequisite.
 
@@ -125,9 +108,11 @@ If Ollama is not detected during configuration, `config.py` will offer to instal
 
 > Ollama must be running in the background before launching Manhattan.
 
+> **Note:** Manhattan has been developed and tested on Windows only. Installation on macOS or Linux has not been tested.
+
 ---
 
-### 3. MySQL
+### 2. MySQL
 
 Manhattan requires a running MySQL server.
 
@@ -152,15 +137,30 @@ git clone https://github.com/mahikrrish/Manhattan.git
 cd Manhattan
 ```
 
-### Step 2 — Install Python dependencies
+### Step 2 — Upgrade pip
 
-This must be done before running `config.py`.
+```
+python -m pip install --upgrade pip
+```
+
+> This must be done before installing dependencies. Some packages may fail to install on an outdated pip.
+
+### Step 3 — Install Visual C++ Redistributable 2015-2022
+
+spaCy and OpenAI Whisper (via PyTorch) require the Microsoft Visual C++ Redistributable to be installed.
+
+Download and install from:
+https://aka.ms/vs/17/release/vc_redist.x64.exe
+
+> Restart your machine after installation if prompted.
+
+### Step 4 — Install Python dependencies
 
 ```
 pip install -r requirements.txt
 ```
 
-### Step 3 — Download the spaCy language model (optional)
+### Step 5 — Download the spaCy language model (optional)
 
 The configuration utility automatically downloads the spaCy `en_core_web_sm` model if it is not already installed. You may also download it manually:
 
@@ -168,7 +168,7 @@ The configuration utility automatically downloads the spaCy `en_core_web_sm` mod
 python -m spacy download en_core_web_sm
 ```
 
-### Step 4 — Edit config.py
+### Step 6 — Edit config.py
 
 Open `config.py` and update only the four database values at the top of the file with your local MySQL credentials:
 
@@ -181,7 +181,9 @@ DB_PASSWORD = "yourpassword" # Your MySQL password
 
 > **No other changes are required to config.py.**
 
-### Step 5 — Run config.py
+### Step 7 — Run config.py
+
+> **Important:** If Ollama was auto-installed by config.py, close the terminal, reopen it, and run config.py again to complete the remaining setup. This is required because Windows does not update the PATH of an already-open terminal.
 
 ```
 python config.py
@@ -192,7 +194,6 @@ The configuration utility will automatically:
 - Verify internet connectivity
 - Check Ollama and pull `llama3.2:3b` (or offer to install Ollama if not found)
 - Verify or download the spaCy `en_core_web_sm` model
-- Verify FFmpeg is available on PATH
 - Download the OpenAI Whisper Base model if not already cached
 - Display a prerequisites summary
 - Connect to MySQL and create the `offlineai` database and tables
@@ -404,9 +405,8 @@ The largest lesson: **the LLM is only one component of an AI system.** The engin
 
 **Sai Krishna Mahidhar Devulapalli**
 
-
 - GitHub: [github.com/mahikrrish](https://github.com/mahikrrish)
-- LinkedIn: [https://www.linkedin.com/in/sai-krishna-mahidhar-devulapalli-811158210/](https://www.linkedin.com/in/sai-krishna-mahidhar-devulapalli-811158210/)
+- LinkedIn: [linkedin.com/in/sai-krishnamahidhar-devulapalli-811158210](https://www.linkedin.com/in/sai-krishnamahidhar-devulapalli-811158210/)
 
 ---
 
