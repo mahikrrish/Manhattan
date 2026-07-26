@@ -26,8 +26,6 @@ import tkinter as tk
 from tkinter import messagebox
 import subprocess
 import socket
-import whisper
-import spacy
 
 DB_HOST = "<DB Host name>" #Edit with your local host name
 DB_PORT = "<DB port>" #Kindly unquote and replace with integer. Remove the quotes.
@@ -38,6 +36,7 @@ DB_PASSWORD = "<DB password>" #Edit with your local passoword here
 # No changes are required below this point.
 # Only update the configuration values above.
 
+base_dir = Path(__file__).resolve().parent
 host="8.8.8.8" # Connects to 8.8.8.8 (Google's DNS) via port 53, which is optimized for quick pings.
 port=53
 timeout=5
@@ -45,7 +44,6 @@ config_message = ''
 
 root = tk.Tk()
 root.withdraw()
-base_dir = Path(__file__).resolve().parent
 
 
 try:
@@ -127,7 +125,7 @@ try:
 
     s = None
     try:
-
+        import spacy
         socket.setdefaulttimeout(timeout)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((host, port))
@@ -148,6 +146,8 @@ try:
                                  f"{type(e).__name__}: {e}")
     except (socket.error, socket.timeout) as e:
         messagebox.showerror("Error", f"{type(e).__name__}: {e}")
+        root.destroy()
+        exit()
     finally:
         if s:
             s.close()
@@ -177,7 +177,7 @@ try:
 
     s = None
     try:
-
+        import whisper
         socket.setdefaulttimeout(timeout)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((host, port))
@@ -197,6 +197,8 @@ try:
                                 'Database configuration will now begin\n\n')
     except (socket.error, socket.timeout) as e:
         messagebox.showerror("Error", f"{type(e).__name__}: {e}")
+        root.destroy()
+        exit()
     finally:
         if s:
             s.close()
