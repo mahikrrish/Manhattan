@@ -40,7 +40,7 @@ The project integrates Speech Recognition, Natural Language Processing (NLP), Co
 ```
 Manhattan/
 │
-├── config.py                       # One-time database setup — run first
+├── config.py                       # One-time configuration utility — run before first launch
 ├── user_interface.py               # Main application entry point
 │
 ├── speech_recognition.py           # OpenAI Whisper speech-to-text pipeline
@@ -85,11 +85,11 @@ Manhattan/
 
 ## Prerequisites
 
-Before installing Python dependencies, the following must be installed on your system.
+The following must be installed manually before running the configuration utility.
 
 ### 1. FFmpeg
 
-FFmpeg is required by OpenAI Whisper for audio processing.
+FFmpeg is required by OpenAI Whisper for audio processing. It must be installed manually — the configuration utility does not install FFmpeg automatically.
 
 Download FFmpeg from https://ffmpeg.org/download.html
 
@@ -106,21 +106,24 @@ ffmpeg -version
 
 ### 2. Ollama
 
-Ollama is required to run Llama 3.2:3B locally.
+Ollama is required to run Llama 3.2:3B locally and is a mandatory prerequisite.
 
-Download and install Ollama from https://ollama.com
+You can install Ollama in one of two ways:
+
+**Option A — Manual installation (recommended)**
+
+Download and install Ollama from https://ollama.com/download/windows
 
 After installation, pull the Llama 3.2:3B model:
 ```
 ollama pull llama3.2:3b
 ```
 
-Verify Ollama is running:
-```
-ollama list
-```
+**Option B — Automatic installation via config.py**
 
-Ollama must be running in the background before launching Manhattan.
+If Ollama is not detected during configuration, `config.py` will offer to install it automatically using the official PowerShell installer. Administrator privileges are required.
+
+> Ollama must be running in the background before launching Manhattan.
 
 ---
 
@@ -136,11 +139,11 @@ During installation, note your:
 - Username (usually `root`)
 - Password (set during installation)
 
-These values will be needed during configuration.
+These values will be entered into `config.py` during setup.
 
 ---
 
-## Installation
+## Installation & Configuration
 
 ### Step 1 — Clone the repository
 
@@ -151,60 +154,53 @@ cd Manhattan
 
 ### Step 2 — Install Python dependencies
 
+This must be done before running `config.py`.
+
 ```
 pip install -r requirements.txt
 ```
 
-### Step 3 — Download the spaCy language model
+### Step 3 — Download the spaCy language model (optional)
+
+The configuration utility automatically downloads the spaCy `en_core_web_sm` model if it is not already installed. You may also download it manually:
 
 ```
 python -m spacy download en_core_web_sm
 ```
 
-### Step 4 — Download the OpenAI Whisper Base model
+### Step 4 — Edit config.py
 
-The Whisper Base model downloads automatically the first time Manhattan's Speech Recognition component runs. No manual download is required.
-
-To pre-download it manually:
-```python
-import whisper
-whisper.load_model("base")
-```
-
----
-
-## Configuration — Run Once
-
-Before launching Manhattan for the first time, the database must be configured.
-
-### Step 1 — Edit config.py
-
-Open `config.py` and update the following values with your local MySQL credentials:
+Open `config.py` and update only the four database values at the top of the file with your local MySQL credentials:
 
 ```python
-DB_HOST = "localhost"       # Your MySQL host
-DB_PORT = 3306              # Your MySQL port (integer, no quotes)
-DB_USER = "root"            # Your MySQL username
+DB_HOST = "localhost"        # Your MySQL host
+DB_PORT = 3306               # Your MySQL port — must be an integer, no quotes
+DB_USER = "root"             # Your MySQL username
 DB_PASSWORD = "yourpassword" # Your MySQL password
 ```
 
-> **Note:** Remove the quotes around `DB_PORT` — it must be an integer.
+> **No other changes are required to config.py.**
 
-### Step 2 — Run config.py
+### Step 5 — Run config.py
 
 ```
 python config.py
 ```
 
-This script will:
-- Connect to your MySQL server
-- Create the `offlineai` database
-- Create the `conversation_history` and `performance_monitor` tables from `database_schema.sql`
-- Generate a `database_configuration.py` file used by the application
+The configuration utility will automatically:
+
+- Verify internet connectivity
+- Check Ollama and pull `llama3.2:3b` (or offer to install Ollama if not found)
+- Verify or download the spaCy `en_core_web_sm` model
+- Verify FFmpeg is available on PATH
+- Download the OpenAI Whisper Base model if not already cached
+- Display a prerequisites summary
+- Connect to MySQL and create the `offlineai` database and tables
+- Generate `database_configuration.py` used by the application at runtime
 
 A confirmation dialog will appear on success.
 
-> **Important:** Run `config.py` only once. If you run it again, it will detect the existing `database_configuration.py` and prompt you to run `user_interface.py` instead.
+> **Important:** Run `config.py` only once. If run again, it will detect the existing `database_configuration.py` and prompt you to run `user_interface.py` instead.
 
 ---
 
@@ -417,6 +413,8 @@ Sr. Risk Control Analyst — Amazon India
 
 ## License
 
-This repository is intended for educational, research, and portfolio purposes.
+This project is licensed under the **Apache License 2.0**.
 
-© 2026 Sai Krishna Mahidhar Devulapalli. All rights reserved.
+See the [LICENSE](LICENSE) file for full licence terms.
+
+© 2026 Sai Krishna Mahidhar Devulapalli
