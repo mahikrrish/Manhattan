@@ -76,6 +76,7 @@ try:
                 check=True)
             if ollama_config.returncode == 0:
                 config_message += "Ollama model available.\n"
+                messagebox.showinfo("Update", "Ollama model available.")
         except FileNotFoundError as e:
             user_choice = messagebox.askquestion("Error",
                                                  f'Ollama is not installed. '
@@ -97,6 +98,7 @@ try:
                                                    check=True)
                     if ollama_config.returncode == 0:
                         config_message += "Ollama model available.\n"
+                        messagebox.showinfo("Update", "Ollama model available.")
                 except Exception as e:
                     messagebox.showerror("Error",
                                          f"{type(e).__name__}: {e}")
@@ -137,10 +139,13 @@ try:
                     check=True)
                 if spacy_config.returncode == 0:
                     config_message += "spaCy model verified.\n"
+                    messagebox.showinfo("Update", "spaCy model verified.\n.")
                 else:
                     config_message += "spaCy model not verified.\n"
+                    messagebox.showinfo("Update", "spaCy model not verified.\n.")
             else:
                 config_message += "spaCy model verified.\n"
+                messagebox.showinfo("Update", "spaCy model verified.\n.")
         except Exception as e:
             messagebox.showerror("Error",
                                  f"{type(e).__name__}: {e}")
@@ -163,6 +168,7 @@ try:
         ffmpeg_config = subprocess.run(["ffmpeg", "-version"], capture_output=True)
         if ffmpeg_config.returncode == 0:
             config_message += "FFmpeg detected.\n"
+            messagebox.showinfo("Update", "FFmpeg detected.\n.")
     except FileNotFoundError as e:
         messagebox.showerror("Error",
                              '''Kindly download FFmpeg from https://ffmpeg.org/download.html''')
@@ -185,8 +191,10 @@ try:
             model = whisper.load_model("base")
             if model:
                 config_message += "Whisper model verified.\n"
+                messagebox.showinfo("Update", "Whisper model verified.\n.")
             else:
                 config_message += "Whisper model not verified.\n"
+                messagebox.showinfo("Update", "Whisper model verified.\n.")
         except Exception as e:
             messagebox.showerror("Error",
                                  f"{type(e).__name__}: {e}")
