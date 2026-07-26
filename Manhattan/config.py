@@ -130,7 +130,6 @@ try:
 
     s = None
     try:
-        messagebox.showinfo("Debug", "Starting spaCy verification")
         import spacy
         socket.setdefaulttimeout(timeout)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -173,7 +172,6 @@ try:
 
     s = None
     try:
-        messagebox.showinfo("Debug", "Starting Whisper verification")
         import whisper
         socket.setdefaulttimeout(timeout)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -216,7 +214,6 @@ try:
 
 
     try:
-        messagebox.showinfo("Debug", "Starting Database configuration")
         config_file = os.path.join(base_dir, "database_configuration.py")
         if os.path.exists(config_file):
             messagebox.showinfo(
