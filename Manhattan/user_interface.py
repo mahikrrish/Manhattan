@@ -339,10 +339,12 @@ class UserInterface(customtkinter.CTk):
                                                                         width=0, height=45)
             self.retrieve_conversation_button.pack(side="right", padx=10, pady=10)
         except Exception as e:
+            err_name = type(e).__name__
+            err_msg = str(e)
             self.after(
                 0,
                 lambda: CTkMessagebox(title="Warning Message!",
-                                      message=f'Image loading failed. {type(e).__name__}: {e}. '
+                                      message=f'Image loading failed. {err_name}: {err_msg}. '
                                               f'But messages will retrieve ', icon="warning")
             )
             self.retrieve_conversation_button = customtkinter.CTkButton(chat_frame,
@@ -401,7 +403,6 @@ class UserInterface(customtkinter.CTk):
 
             microphone_icon_path = os.path.join(self.base_dir, "assets", "microphone.png")
             microphone_raw_image = Image.open(microphone_icon_path)
-            microphone_raw_image = Image.open(microphone_icon_path)
             microphone_image = customtkinter.CTkImage(light_image=microphone_raw_image,
                                                       size=(40, 40))
 
@@ -418,9 +419,11 @@ class UserInterface(customtkinter.CTk):
                                                          fg_color=self.button_fg_color)
             self.submit_button.pack(padx=(3, 73), pady=15, side="right")
         except Exception as e:
+            err_name = type(e).__name__
+            err_msg = str(e)
             self.after(
                 0,
-                lambda: CTkMessagebox(title="Warning Message!", message=f'Image loading failed. {type(e).__name__}: {e}. '
+                lambda: CTkMessagebox(title="Warning Message!", message=f'Image loading failed. {err_name}: {err_msg}. '
                                                                         f'But program will work ', icon="warning")
             )
             self.microphone = customtkinter.CTkButton(input_frame, width=0, text="Mic",
@@ -534,10 +537,12 @@ class UserInterface(customtkinter.CTk):
                     self.display_message(df.ai_response[i], role="ai")
             return True
         except Exception as e:
+            err_name = type(e).__name__
+            err_msg = str(e)
             self.after(
                 0,
                 lambda: CTkMessagebox(title="Error",
-                                      message=f'{type(e).__name__}: {e}',
+                                      message=f'{err_name}: {err_msg}',
                                       icon="cancel")
             )
             return False
@@ -663,10 +668,12 @@ class UserInterface(customtkinter.CTk):
             else:
                 raise Exception
         except Exception as e:
+            err_name = type(e).__name__
+            err_msg = str(e)
             self.after(
                 0,
                 lambda: CTkMessagebox(title="Error!",
-                                      message=f'Speech Recognition failed. {type(e).__name__}: {e}. '
+                                      message=f'Speech Recognition failed. {err_name}: {err_msg}. '
                                               f'Kindly try again. ',
                                       icon="warning")
             )
@@ -758,8 +765,10 @@ class UserInterface(customtkinter.CTk):
                 lambda: self.display_message(self.conv_data['ai_response'], role="ai")
             )
         except Exception as e:
+            err_name = type(e).__name__
+            err_msg = str(e)
             self.conv_data['status'] = 'Error'
-            self.conv_data['error_message'] = f'{type(e).__name__}: {e}'
+            self.conv_data['error_message'] = f'{err_name}: {err_msg}'
             self.after(
                 0,
                 lambda: CTkMessagebox(title="Error",
