@@ -65,7 +65,7 @@ import customtkinter
 import pandas as pd
 from PIL import Image
 import manhattan
-from Manhattan.speech_recognition import SpeechRecognition
+import speech_recognition
 import natural_language_processing
 warnings.filterwarnings('ignore') #To suppress all warnings across the entire script
 import database
@@ -155,7 +155,7 @@ class UserInterface(customtkinter.CTk):
                 exchanged between GUI and backend components.
         """
         super().__init__()
-        self.stt = SpeechRecognition()
+        self.stt = speech_recognition.SpeechRecognition()
         self.nlp = natural_language_processing.NaturalLanguageProcessing()
         self.manh = manhattan.Manhattan()
         self.db = database.DatabaseManager()

@@ -19,6 +19,8 @@ After successful configuration, run user_interface.py to start the
 application.
 """
 
+
+
 import mysql.connector
 import os
 from pathlib import Path
@@ -26,6 +28,8 @@ import tkinter as tk
 from tkinter import messagebox
 import subprocess
 import socket
+
+
 
 DB_HOST = "<DB Host name>" #Edit with your local host name
 DB_PORT = "<DB port>" #Kindly unquote and replace with integer. Remove the quotes.
@@ -72,7 +76,6 @@ try:
                     'pull',
                     'llama3.2:3b'
                 ],
-                capture_output=True,
                 check=True)
             if ollama_config.returncode == 0:
                 config_message += "Ollama model available.\n"
@@ -94,7 +97,7 @@ try:
                         ],
                         check=True
                     )
-                    ollama_config = subprocess.run(['ollama', 'pull', 'llama3.2:3b'], capture_output=True,
+                    ollama_config = subprocess.run(['ollama', 'pull', 'llama3.2:3b'],
                                                    check=True)
                     if ollama_config.returncode == 0:
                         config_message += "Ollama model available.\n"
@@ -127,6 +130,7 @@ try:
 
     s = None
     try:
+        messagebox.showinfo("Debug", "Starting spaCy verification")
         import spacy
         socket.setdefaulttimeout(timeout)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -135,7 +139,6 @@ try:
             if not spacy.util.is_package('en_core_web_sm'):
                 spacy_config = subprocess.run(
                     ['python', '-m', 'spacy', 'download', 'en_core_web_sm'],
-                    capture_output=True,
                     check=True)
                 if spacy_config.returncode == 0:
                     config_message += "spaCy model verified.\n"
@@ -149,10 +152,13 @@ try:
         except Exception as e:
             messagebox.showerror("Error",
                                  f"{type(e).__name__}: {e}")
-    except (socket.error, socket.timeout) as e:
-        messagebox.showerror("Error", f"{type(e).__name__}: {e}")
+    except Exception as e:
+        messagebox.showerror("spaCy Import Error",
+                             f"spaCy could not be imported.\n\n"
+                             f"This usually indicates that the Python environment or one of "
+                             f"spaCy's dependencies is not installed correctly.\n\n"
+                             f"Details:\n{e}")
         root.destroy()
-        exit()
     finally:
         if s:
             s.close()
@@ -165,7 +171,8 @@ try:
 
 
     try:
-        ffmpeg_config = subprocess.run(["ffmpeg", "-version"], capture_output=True)
+        messagebox.showinfo("Debug", "Starting FFmpeg verification")
+        ffmpeg_config = subprocess.run(["ffmpeg", "-version"])
         if ffmpeg_config.returncode == 0:
             config_message += "FFmpeg detected.\n"
             messagebox.showinfo("Update", "FFmpeg detected.\n.")
@@ -183,6 +190,7 @@ try:
 
     s = None
     try:
+        messagebox.showinfo("Debug", "Starting Whisper verification")
         import whisper
         socket.setdefaulttimeout(timeout)
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -203,10 +211,9 @@ try:
                                 f'Application prerequisites have been verified.\n\n'
                                 f'{config_message}\n\n'
                                 'Database configuration will now begin\n\n')
-    except (socket.error, socket.timeout) as e:
+    except Exception as e:
         messagebox.showerror("Error", f"{type(e).__name__}: {e}")
         root.destroy()
-        exit()
     finally:
         if s:
             s.close()
@@ -226,6 +233,7 @@ try:
 
 
     try:
+        messagebox.showinfo("Debug", "Starting Database configuration")
         config_file = os.path.join(base_dir, "database_configuration.py")
         if os.path.exists(config_file):
             messagebox.showinfo(
