@@ -1,0 +1,10 @@
+customtkinter==5.2.2
+CTkMessagebox==2.7
+Pillow==11.3.0
+pandas==2.3.2
+numpy==2.3.2
+mysql-connector-python==9.4.0
+spacy==3.8.7
+sounddevice==0.5.2
+openai-whisper==20250625
+ollama==0.6.0

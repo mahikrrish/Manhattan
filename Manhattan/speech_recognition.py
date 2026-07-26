@@ -202,8 +202,8 @@ class SpeechRecognition(threading.Thread):
 
         silence_threshold = 100  # Volume below this is treated as silence
         silence_seconds = 10  # Stop recording after 10 sec inactivity
-        if self.attempt == 1:
-            print('Waiting for audio...')
+        # if self.attempt == 1:
+        #     print('Waiting for audio...')
         self.performance_log['start_time'] = time.time()
         self.performance_log['conversation_id'] = conversation_id
         self.performance_log['error_message'] = ''
@@ -223,9 +223,9 @@ class SpeechRecognition(threading.Thread):
                     if volume > silence_threshold:
                         last_speech_time = time.time()
                     if time.time() - last_speech_time > silence_seconds:
-                        print("Silence detected")
+                        # print("Silence detected")
                         break
-            print('Recording done')
+            # print('Recording done')
             recording = np.concatenate(recorded_chunks, axis=0)
             return self.transcription(recording.flatten().astype(np.float32)/32768.0)
         except sd.PortAudioError as e:

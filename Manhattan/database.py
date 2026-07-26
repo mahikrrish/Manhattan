@@ -87,7 +87,7 @@ import mysql.connector
 import pandas as pd
 import threading
 import json
-import config
+import database_configuration
 
 class DatabaseManager(threading.Thread):
     """
@@ -178,11 +178,11 @@ class DatabaseManager(threading.Thread):
         """
         try:
             self.db = mysql.connector.connect(
-                host=config.DB_HOST,
-                port=config.DB_PORT,
-                user=config.DB_USER,
-                password=config.DB_PASSWORD,
-                database=config.DB_NAME
+                host=database_configuration.DB_HOST,
+                port=database_configuration.DB_PORT,
+                user=database_configuration.DB_USER,
+                password=database_configuration.DB_PASSWORD,
+                database=database_configuration.DB_NAME
             )
             self.mycursor = self.db.cursor()
             self.db_connection = True
