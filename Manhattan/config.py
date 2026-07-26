@@ -31,10 +31,10 @@ import socket
 
 
 
-DB_HOST = "<DB Host name>" #Edit with your local host name
-DB_PORT = "<DB port>" #Kindly unquote and replace with integer. Remove the quotes.
-DB_USER = "<DB username>" #Edit with your user here
-DB_PASSWORD = "<DB password>" #Edit with your local passoword here
+DB_HOST = "<DB Host Nam>" #Edit with your local host name
+DB_PORT = "<DB Port>" #Kindly unquote and replace with integer. Remove the quotes.
+DB_USER = "<DB User>" #Edit with your user here
+DB_PASSWORD = "<DB Password>" #Edit with your local passoword here
 
 
 # No changes are required below this point.
@@ -162,23 +162,6 @@ try:
     finally:
         if s:
             s.close()
-
-
-    # Verify that the FFmpeg executable is available.
-    #
-    # FFmpeg is an external dependency and must be installed separately.
-    # This script only verifies its availability and does not install it.
-
-
-    try:
-        messagebox.showinfo("Debug", "Starting FFmpeg verification")
-        ffmpeg_config = subprocess.run(["ffmpeg", "-version"])
-        if ffmpeg_config.returncode == 0:
-            config_message += "FFmpeg detected.\n"
-            messagebox.showinfo("Update", "FFmpeg detected.\n.")
-    except FileNotFoundError as e:
-        messagebox.showerror("Error",
-                             '''Kindly download FFmpeg from https://ffmpeg.org/download.html''')
 
 
     # Verify that the required Whisper model is available.
