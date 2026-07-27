@@ -1,3 +1,4 @@
+click==8.4.2
 customtkinter==6.0.0
 CTkMessagebox==2.7
 Pillow==12.2.0
@@ -8,4 +9,3 @@ spacy==3.8.13
 sounddevice==0.5.5
 openai-whisper==20250625
 ollama==0.6.2
-click==8.4.2
