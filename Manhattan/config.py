@@ -204,7 +204,8 @@ class Configuration(customtkinter.CTk):
                 ollama_config = subprocess.run(['ollama', 'pull', 'llama3.2:3b'],check=True)
                 if ollama_config.returncode == 0:
                     self.config_message += "Ollama model available.\n"
-                    CTkMessagebox(title="Success", message="Ollama model available.",
+                    CTkMessagebox(title="Success",
+                                  message="Ollama model available.\n",
                                   icon="check", sound=True).get()
             except FileNotFoundError as e:
                 user_choice = CTkMessagebox(title="Error",
@@ -241,7 +242,7 @@ class Configuration(customtkinter.CTk):
                         if ollama_config.returncode == 0:
                             self.config_message += "Ollama model available.\n"
                             CTkMessagebox(title="Success",
-                                          message="Ollama model available.",
+                                          message="Ollama model available.\n",
                                           icon="check", sound=True).get()
                     except Exception as e:
                         CTkMessagebox(title="Error",
@@ -253,15 +254,15 @@ class Configuration(customtkinter.CTk):
                                             "Kindly install Ollama application from "
                                             "https://ollama.com/download/windows "
                                             "before running the "
-                                            "user_interface.py file\n\n")
+                                            "user_interface.py file\n")
                     CTkMessagebox(title="Report",
                                   message= "Ollama is not installed. "
-                                           "Ollama is a pre-requisite installation.\n\n",
+                                           "Ollama is a pre-requisite installation.\n",
                                   icon="warning", sound=True).get()
                     CTkMessagebox(title="Report",
                                   message="Kindly install Ollama application from "
                                           "https://ollama.com/download/windows before running the "
-                                          "user_interface.py file\n\n",
+                                          "user_interface.py file\n",
                                   icon="warning", sound=True).get()
     def spacy_installation(self):
         """
@@ -289,7 +290,7 @@ class Configuration(customtkinter.CTk):
                         user_choice = CTkMessagebox(title="Error",
                                                     message='spaCy is not installed. '
                                                             'Would you like to proceed '
-                                                            'with installation?\n\n',
+                                                            'with installation?\n',
                                                     icon="question",
                                                     option_1="Yes", option_2="No",
                                                     sound=True)
@@ -304,33 +305,33 @@ class Configuration(customtkinter.CTk):
                                 ],
                                 check=True)
                             if spacy_config.returncode == 0:
-                                self.config_message += "spaCy model verified.\n\n"
+                                self.config_message += "spaCy model verified.\n"
                                 CTkMessagebox(title="Success",
-                                              message="spaCy model verified.\n\n",
+                                              message="spaCy model verified.\n",
                                               icon="check",
                                               sound=True).get()
                             else:
-                                self.config_message += "spaCy model not verified.\n\n"
+                                self.config_message += "spaCy model not verified.\n"
                                 CTkMessagebox(title="Error",
-                                              message="spaCy model not verified.\n\n",
+                                              message="spaCy model not verified.\n",
                                               icon="cancel",
                                               sound=True).get()
                         else:
-                            self.config_message += ("spaCy model not installed.\n\n"
+                            self.config_message += ("spaCy model not installed.\n"
                                                     "Kindly run python -m spacy "
                                                     "download en_core_web_sm "
                                                     "in command prompt.")
                             CTkMessagebox(title="Error",
-                                          message="spaCy model not installed.\n\n"
+                                          message="spaCy model not installed.\n"
                                                   "Kindly run python -m spacy "
                                                   "download en_core_web_sm in "
                                                   "command prompt.",
                                           icon="cancel",
                                           sound=True).get()
                     else:
-                        self.config_message += "spaCy model verified.\n\n"
+                        self.config_message += "spaCy model verified.\n"
                         CTkMessagebox(title="Success",
-                                      message= "spaCy model verified.\n\n",
+                                      message= "spaCy model verified.\n",
                                       icon="check", sound=True).get()
                 except Exception as e:
                     CTkMessagebox(title="Error",
@@ -338,11 +339,11 @@ class Configuration(customtkinter.CTk):
                                   icon="cancel", sound=True).get()
         except (ModuleNotFoundError, ImportError) as e:
             CTkMessagebox(title="spaCy Import Error",
-                          message= f"spaCy could not be imported.\n\n"
+                          message= f"spaCy could not be imported.\n"
                                    f"This usually indicates that the Python "
                                    f"environment or one of "
                                    f"spaCy's dependencies is not "
-                                   f"installed correctly.\n\n"
+                                   f"installed correctly.\n"
                                    f"Error:{type(e).__name__}: {e}",
                           icon="cancel", sound=True).get()
         except Exception as e:
@@ -375,14 +376,14 @@ class Configuration(customtkinter.CTk):
                 try:
                     model = whisper.load_model("base")
                     if model:
-                        self.config_message += "Whisper model verified.\n\n"
+                        self.config_message += "Whisper model verified.\n"
                         CTkMessagebox(title="Success",
-                                      message= "Whisper model verified.\n\n",
+                                      message= "Whisper model verified.\n",
                                       icon="check", sound=True).get()
                     else:
-                        self.config_message += "Whisper model not verified.\n\n"
+                        self.config_message += "Whisper model not verified.\n"
                         CTkMessagebox(title="Error",
-                                      message= "Whisper model not verified.\n\n",
+                                      message= "Whisper model not verified.\n",
                                       icon="cancel", sound=True).get()
                 except Exception as e:
                     CTkMessagebox(title="Error",
@@ -390,9 +391,9 @@ class Configuration(customtkinter.CTk):
                                   icon="cancel", sound=True).get()
                 finally:
                     CTkMessagebox(title='Success',
-                                  message= f'Application prerequisites have been verified.\n\n'
-                                           f'{self.config_message}\n\n'
-                                           f'Database configuration will now begin\n\n',
+                                  message= f'Application prerequisites have been verified.\n'
+                                           f'{self.config_message}\n'
+                                           f'Database configuration will now begin\n',
                                   icon="check", sound=True).get()
         except Exception as e:
             CTkMessagebox(title="Error",
@@ -426,8 +427,8 @@ class Configuration(customtkinter.CTk):
             if os.path.exists(config_file):
                 CTkMessagebox(title="Info",
                               message= "Database and Tables already Configured. "
-                                       "The pre-requisites has already been configured.\n\n"
-                                       "Run user_interface.py instead.\n\n",
+                                       "The pre-requisites has already been configured.\n"
+                                       "Run user_interface.py instead.\n",
                               sound=True).get()
                 exit()
             else:
@@ -458,7 +459,7 @@ class Configuration(customtkinter.CTk):
                                        "The database, tables and "
                                        "database_configuration.py have been created. "
                                        "You can now run user_interface.py. "
-                                       "Database name is offlineai.\n\n",
+                                       "Database name is offlineai.\n",
                               icon="check", sound=True).get()
             except Exception as e:
                 CTkMessagebox(title="Configuration Error",
