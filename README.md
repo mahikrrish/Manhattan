@@ -38,37 +38,37 @@ The project integrates Speech Recognition, Natural Language Processing (NLP), Co
 ## Project Structure
 
 ```
-Manhattan/                          # Root repository
+Manhattan/                                # Root repository
 │
-├── Manhattan/                      # Main application package
+├── Manhattan/                            # Main application package
 │   ├── assets/
-│   │   ├── Manhattan Icon.ico      # Application window icon (title bar)
-│   │   ├── Manhattan Icon.png      # Splash screen image
-│   │   ├── microphone.png          # Microphone button icon
-│   │   ├── send-button.png         # Submit button icon
-│   │   └── data-retrieval.png      # Conversation retrieval button icon
+│   │   ├── Manhattan Icon.ico            # Application window icon (title bar)
+│   │   ├── Manhattan Icon.png            # Splash screen image
+│   │   ├── microphone.png                # Microphone button icon
+│   │   ├── send-button.png               # Submit button icon
+│   │   └── data-retrieval.png            # Conversation retrieval button icon
 │   │
-│   ├── __init__.py                 # Package initializer
-│   ├── config.py                   # One-time configuration utility — run before first launch
-│   ├── conversation_memory.py      # Conversation retrieval and context construction
-│   ├── database.py                 # MySQL operations and performance monitoring
-│   ├── database_schema.sql         # Database and table definitions
-│   ├── manhattan.py                # Llama 3.2:3B integration and response generation
-│   ├── natural_language_processing.py  # spaCy NLP preprocessing
-│   ├── requirements.txt            # Python dependencies
-│   ├── speech_recognition.py       # OpenAI Whisper speech-to-text pipeline
-│   └── user_interface.py           # Main application entry point
+│   ├── __init__.py                       # Package initializer
+│   ├── config.py                         # One-time configuration utility — run before first launch
+│   ├── conversation_memory.py            # Conversation retrieval and context construction
+│   ├── database.py                       # MySQL operations and performance monitoring
+│   ├── database_schema.sql               # Database and table definitions
+│   ├── manhattan.py                      # Llama 3.2:3B integration and response generation
+│   ├── natural_language_processing.py    # spaCy NLP preprocessing
+│   ├── requirements.txt                  # Python dependencies
+│   ├── speech_recognition.py             # OpenAI Whisper speech-to-text pipeline
+│   └── user_interface.py                 # Main application entry point
 │
 ├── docs/
-│   ├── Manhattan Workflow.jpg      # Architecture workflow diagram
-│   ├── Manhattan Workflow.pdf      # Architecture workflow diagram (PDF)
-│   └── Test Data/                  # NLP testing data
+│   ├── Manhattan Workflow.jpg            # Architecture workflow diagram
+│   ├── Manhattan Workflow.pdf            # Architecture workflow diagram (PDF)
+│   └── Test Data/                        # NLP testing data
 │       ├── NLP Performance Monitor.xlsx  # NLP performance results
 │       ├── NLP Random Paragraphs.txt     # 31,613 test paragraphs (Kaggle)
 │       └── NLP Sample Output.txt         # Sample NLP structured output
 │
-├── LICENSE                         # Apache 2.0 licence
-└── README.md                       # Project documentation
+├── LICENSE                               # Apache 2.0 licence
+└── README.md                             # Project documentation
 ```
 
 ---
