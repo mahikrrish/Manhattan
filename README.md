@@ -35,6 +35,16 @@ The project integrates Speech Recognition, Natural Language Processing (NLP), Co
 
 ---
 
+## Demo
+
+<p align="center">
+  <a href="https://drive.google.com/file/d/1ax6slt0F3piumlrhqU1hPn-8RJ-2Yskd/view?usp=sharing">
+    ▶ Watch Manhattan Demo Video
+  </a>
+</p>
+
+---
+
 ## Project Structure
 
 ```
