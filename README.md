@@ -38,33 +38,37 @@ The project integrates Speech Recognition, Natural Language Processing (NLP), Co
 ## Project Structure
 
 ```
-Manhattan/
+Manhattan/                          # Root repository
 │
-├── config.py                       # One-time configuration utility — run before first launch
-├── user_interface.py               # Main application entry point
-│
-├── speech_recognition.py           # OpenAI Whisper speech-to-text pipeline
-├── natural_language_processing.py  # spaCy NLP preprocessing
-├── conversation_memory.py          # Conversation retrieval and context construction
-├── manhattan.py                    # Llama 3.2:3B integration and response generation
-├── database.py                     # MySQL operations and performance monitoring
-│
-├── database_schema.sql             # Database and table definitions
-├── requirements.txt                # Python dependencies
-│
-├── assets/
-│   ├── Manhattan Icon.ico          # Application window icon (title bar)
-│   ├── Manhattan Icon.png          # Splash screen image
-│   ├── microphone.png              # Microphone button icon
-│   ├── send-button.png             # Submit button icon
-│   └── data-retrieval.png          # Conversation retrieval button icon
+├── Manhattan/                      # Main application package
+│   ├── assets/
+│   │   ├── Manhattan Icon.ico      # Application window icon (title bar)
+│   │   ├── Manhattan Icon.png      # Splash screen image
+│   │   ├── microphone.png          # Microphone button icon
+│   │   ├── send-button.png         # Submit button icon
+│   │   └── data-retrieval.png      # Conversation retrieval button icon
+│   │
+│   ├── __init__.py                 # Package initializer
+│   ├── config.py                   # One-time configuration utility — run before first launch
+│   ├── conversation_memory.py      # Conversation retrieval and context construction
+│   ├── database.py                 # MySQL operations and performance monitoring
+│   ├── database_schema.sql         # Database and table definitions
+│   ├── manhattan.py                # Llama 3.2:3B integration and response generation
+│   ├── natural_language_processing.py  # spaCy NLP preprocessing
+│   ├── requirements.txt            # Python dependencies
+│   ├── speech_recognition.py       # OpenAI Whisper speech-to-text pipeline
+│   └── user_interface.py           # Main application entry point
 │
 ├── docs/
-│   └── Manhattan Workflow.jpg      # Architecture workflow diagram
+│   ├── Manhattan Workflow.jpg      # Architecture workflow diagram
+│   ├── Manhattan Workflow.pdf      # Architecture workflow diagram (PDF)
+│   └── Test Data/                  # NLP testing data
+│       ├── NLP Performance Monitor.xlsx  # NLP performance results
+│       ├── NLP Random Paragraphs.txt     # 31,613 test paragraphs (Kaggle)
+│       └── NLP Sample Output.txt         # Sample NLP structured output
 │
-├── __init__.py                     # Package initializer
-├── README.md                       # Project documentation
-└── LICENSE                         # Project license
+├── LICENSE                         # Apache 2.0 licence
+└── README.md                       # Project documentation
 ```
 
 ---
@@ -142,8 +146,10 @@ These values will be entered into `config.py` during setup.
 
 ```
 git clone https://github.com/mahikrrish/Manhattan.git
-cd Manhattan
+cd Manhattan/Manhattan
 ```
+
+> All application files are inside the `Manhattan/Manhattan/` subfolder.
 
 ---
 
@@ -349,6 +355,20 @@ CREATE TABLE IF NOT EXISTS performance_monitor (
         REFERENCES conversation_history (conversation_id)
 );
 ```
+
+---
+
+## NLP Testing
+
+The Natural Language Processing component was tested against a dataset of **31,613 random paragraphs** sourced from Kaggle:
+
+https://www.kaggle.com/datasets/nikitricky/random-paragraphs
+
+Test inputs, NLP structured outputs, and performance metrics are documented in the `docs/Test Data/` folder:
+
+- `NLP Random Paragraphs.txt` — input paragraphs used for testing
+- `NLP Sample Output.txt` — sample structured NLP output produced by spaCy
+- `NLP Performance Monitor.xlsx` — execution timing and performance results per paragraph
 
 ---
 
