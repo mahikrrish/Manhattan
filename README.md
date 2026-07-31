@@ -191,7 +191,8 @@ The configuration utility automatically downloads the spaCy `en_core_web_sm` mod
 python -m spacy download en_core_web_sm
 ```
 
-**Command Prompt users**: Run in an **Administrator** Command Prompt
+**Command Prompt users**: Run in an **Administrator** Command Prompt.
+
 This step is entirely optional — `config.py` will handle it if skipped.
 
 ---
